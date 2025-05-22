@@ -64,5 +64,4 @@ python -m unittest discover tests
 📃 Licence
 Ce projet est un travail académique réalisé dans le cadre du cours INFO-H-400 "Medical Information Systems".
 Développé par Anouchka, Christelle, Roméo et Calixta © 2025
-Ces fichiers constituent l'ensemble complet de votre partie du projet, prêts à être partagés avec vos collaborateurs.
- 
+Ces fichiers constituent l'ensemble complet de votre projet.

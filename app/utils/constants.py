@@ -1,0 +1,12 @@
+# -*- coding: utf-8 -*-
+"""
+Constantes globales de l'application.
+"""
+
+DEFAULT_ENCODING = "utf-8"
+HL7_VERSION = "2.5"
+DEFAULT_ADMISSION_PORT = 2576
+DEFAULT_LAB_PORT = 2577
+DEFAULT_ORDER_PORT = 2578
+DEFAULT_PHARMACY_PORT = 2579
+

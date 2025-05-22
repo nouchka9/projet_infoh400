@@ -1,0 +1,425 @@
+"""
+Interface pour le département de radiologie.
+"""
+import tkinter as tk
+from tkinter import ttk, messagebox
+import logging
+from datetime import datetime
+import threading
+
+class RadiologyFrame(ttk.Frame):
+    def __init__(self, parent, mllp_client, message_builder, on_message_callback):
+        super().__init__(parent)
+        self.logger = logging.getLogger("HL7Messenger.RadiologyUI")
+        self.mllp_client = mllp_client
+        self.message_builder = message_builder
+        self.on_message_callback = on_message_callback
+        self.processing = False
+        self._create_widgets()
+        self._bind_events()
+
+    def _create_widgets(self):
+        title_label = ttk.Label(self, text="Service de Radiologie", style="Title.TLabel")
+        title_label.pack(pady=(10, 5))
+
+        self.notebook = ttk.Notebook(self)
+        self.notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        self.request_frame = ttk.Frame(self.notebook)
+        self.results_frame = ttk.Frame(self.notebook)
+
+        self.notebook.add(self.request_frame, text="Demande d'examen")
+        self.notebook.add(self.results_frame, text="Résultats radiologiques")
+
+        self._create_request_form(self.request_frame)
+        self._create_results_form(self.results_frame)
+        
+        # Barre de statut globale
+        status_frame = ttk.Frame(self)
+        status_frame.pack(fill=tk.X, pady=5)
+        
+        self.status_var = tk.StringVar(value="Prêt")
+        status_label = ttk.Label(status_frame, textvariable=self.status_var)
+        status_label.pack(side=tk.LEFT, padx=10)
+        
+        self.progress = ttk.Progressbar(status_frame, mode="indeterminate", length=150)
+        self.progress.pack(side=tk.RIGHT, padx=10)
+        self.progress.pack_forget()  # Masquer jusqu'à utilisation
+
+    def _create_request_form(self, parent):
+        form = ttk.LabelFrame(parent, text="Nouvelle demande", padding=10)
+        form.pack(fill=tk.BOTH, expand=True)
+
+        self.patient_id_var = tk.StringVar()
+        self.order_id_var = tk.StringVar()
+        self.test_code_var = tk.StringVar()
+        self.test_name_var = tk.StringVar()
+        self.scheduled_date_var = tk.StringVar()
+        self.priority_var = tk.StringVar()
+        self.comments_var = tk.StringVar()
+
+        # Premier groupe - informations de base
+        base_frame = ttk.Frame(form)
+        base_frame.pack(fill=tk.X, pady=5)
+        
+        base_frame.columnconfigure(1, weight=1)
+        base_frame.columnconfigure(3, weight=1)
+
+        self._entry_grid(base_frame, "ID Patient:", self.patient_id_var, row=0, col=0)
+        self._entry_grid(base_frame, "ID Demande:", self.order_id_var, row=0, col=2)
+        self._entry_grid(base_frame, "Code Examen:", self.test_code_var, row=1, col=0)
+        self._entry_grid(base_frame, "Nom Examen:", self.test_name_var, row=1, col=2)
+        
+        # Date et priorité
+        priority_frame = ttk.Frame(form)
+        priority_frame.pack(fill=tk.X, pady=5)
+        
+        priority_frame.columnconfigure(1, weight=1)
+        priority_frame.columnconfigure(3, weight=1)
+        
+        # Utiliser la date du jour par défaut
+        current_date = datetime.now().strftime("%Y%m%d")
+        self.scheduled_date_var.set(current_date)
+        
+        date_entry = self._entry_grid(priority_frame, "Date prévue:", self.scheduled_date_var, row=0, col=0)
+        ttk.Label(priority_frame, text="(AAAAMMJJ)", font=("Helvetica", 8), foreground="#888888").grid(
+            row=0, column=2, sticky="w")
+        
+        ttk.Label(priority_frame, text="Priorité:").grid(row=1, column=0, sticky="w", padx=5, pady=5)
+        priority_combo = ttk.Combobox(priority_frame, textvariable=self.priority_var,
+                                    values=['Normal', 'STAT', 'Urgent'], state="readonly", width=15)
+        priority_combo.grid(row=1, column=1, sticky="w", padx=5, pady=5)
+        priority_combo.current(0)
+        
+        # Commentaires
+        comment_frame = ttk.LabelFrame(form, text="Commentaires")
+        comment_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+        
+        self.comments_text = tk.Text(comment_frame, height=4, width=50, wrap="word")
+        self.comments_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        
+        # Lier la variable de commentaire au widget Text
+        self.comments_text.bind("<<Modified>>", self._on_comments_modified)
+
+        # Boutons
+        btn_frame = ttk.Frame(parent)
+        btn_frame.pack(pady=10)
+        
+        self.req_send_btn = ttk.Button(btn_frame, text="Envoyer", command=self._send_request, width=15)
+        self.req_send_btn.pack(side=tk.RIGHT, padx=5)
+        
+        self.req_reset_btn = ttk.Button(btn_frame, text="Réinitialiser", command=self._reset_request_form, width=15)
+        self.req_reset_btn.pack(side=tk.RIGHT, padx=5)
+
+        self._set_default_request()
+
+    def _create_results_form(self, parent):
+        form = ttk.LabelFrame(parent, text="Résultat radiologique", padding=10)
+        form.pack(fill=tk.BOTH, expand=True)
+
+        self.result_pid = tk.StringVar()
+        self.result_oid = tk.StringVar()
+        self.result_fid = tk.StringVar()
+        self.result_code = tk.StringVar()
+        self.result_name = tk.StringVar()
+
+        # Premier groupe - Informations de base
+        info_frame = ttk.Frame(form)
+        info_frame.pack(fill=tk.X, pady=5)
+        
+        info_frame.columnconfigure(1, weight=1)
+        info_frame.columnconfigure(3, weight=1)
+
+        self._entry_grid(info_frame, "ID Patient:", self.result_pid, row=0, col=0)
+        self._entry_grid(info_frame, "ID Demande:", self.result_oid, row=0, col=2)
+        self._entry_grid(info_frame, "ID Exécutant:", self.result_fid, row=1, col=0)
+        self._entry_grid(info_frame, "Code Examen:", self.result_code, row=1, col=2)
+        self._entry_grid(info_frame, "Nom Examen:", self.result_name, row=2, col=0, colspan=3)
+
+        # Résultat détaillé
+        result_frame = ttk.LabelFrame(form, text="Rapport radiologique")
+        result_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+        
+        # En-têtes de colonnes pour la clarté
+        headers_frame = ttk.Frame(result_frame)
+        headers_frame.pack(fill=tk.X, padx=5, pady=(5,0))
+        
+        ttk.Label(headers_frame, text="Conclusion", font=("Helvetica", 10, "bold")).pack(anchor="w")
+        
+        self.result_text = tk.Text(result_frame, height=10, width=50, wrap="word")
+        self.result_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        
+        # Ajouter une barre de défilement
+        scrollbar = ttk.Scrollbar(self.result_text, command=self.result_text.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.result_text.configure(yscrollcommand=scrollbar.set)
+
+        # Boutons
+        btn_frame = ttk.Frame(parent)
+        btn_frame.pack(pady=10)
+        
+        self.res_send_btn = ttk.Button(btn_frame, text="Envoyer", command=self._send_results, width=15)
+        self.res_send_btn.pack(side=tk.RIGHT, padx=5)
+        
+        self.res_reset_btn = ttk.Button(btn_frame, text="Réinitialiser", command=self._reset_results_form, width=15)
+        self.res_reset_btn.pack(side=tk.RIGHT, padx=5)
+
+        self._set_default_results()
+
+    def _entry(self, parent, label, var, row):
+        """Ajoute un champ label + entry dans un frame (verticallement)"""
+        ttk.Label(parent, text=label).grid(row=row, column=0, sticky="w", padx=5, pady=5)
+        entry = ttk.Entry(parent, textvariable=var)
+        entry.grid(row=row, column=1, columnspan=3, sticky="ew", padx=5, pady=5)
+        return entry
+
+    def _entry_grid(self, parent, label, var, row, col, colspan=1):
+        """Ajoute un champ label + entry dans une grille (2 colonnes par ligne)"""
+        ttk.Label(parent, text=label).grid(row=row, column=col, sticky="w", padx=5, pady=5)
+        entry = ttk.Entry(parent, textvariable=var)
+        entry.grid(row=row, column=col+1, columnspan=colspan, sticky="ew", padx=5, pady=5)
+        return entry
+
+    def _bind_events(self):
+        """Attache les gestionnaires d'événements"""
+        # Attacher les touches pour chaque onglet
+        self.request_frame.bind("<Return>", lambda event: self._send_request())
+        self.results_frame.bind("<Return>", lambda event: self._send_results())
+        
+        # Faciliter la navigation au clavier
+        for frame in [self.request_frame, self.results_frame]:
+            self._bind_tab_navigation(frame)
+
+    def _bind_tab_navigation(self, parent):
+        """Configure la navigation par tabulation dans un frame"""
+        for child in parent.winfo_children():
+            if isinstance(child, ttk.Frame) or isinstance(child, ttk.LabelFrame):
+                self._bind_tab_navigation(child)
+            elif isinstance(child, ttk.Entry):
+                child.bind("<FocusIn>", self._on_entry_focus)
+
+    def _on_entry_focus(self, event):
+        """Gère le focus sur un champ"""
+        event.widget.select_range(0, tk.END)
+
+    def _on_comments_modified(self, event=None):
+        """Met à jour la variable de commentaire depuis le widget Text"""
+        if self.comments_text.edit_modified():
+            self.comments_var.set(self.comments_text.get("1.0", "end-1c"))
+            self.comments_text.edit_modified(False)
+
+    def _set_default_request(self):
+        """Valeurs par défaut pour le formulaire de demande"""
+        self.patient_id_var.set("P12345")
+        self.order_id_var.set("ORD87654")
+        self.test_code_var.set("XR")
+        self.test_name_var.set("Radio Thorax")
+        self.scheduled_date_var.set(datetime.now().strftime("%Y%m%d"))
+        self.priority_var.set("Normal")
+        
+        # Définir le commentaire
+        self.comments_text.delete("1.0", tk.END)
+        self.comments_text.insert("1.0", "Suspicion de pneumonie")
+        self._on_comments_modified()
+
+    def _set_default_results(self):
+        """Valeurs par défaut pour le formulaire de résultats"""
+        self.result_pid.set("P12345")
+        self.result_oid.set("ORD87654")
+        self.result_fid.set("RAD456")
+        self.result_code.set("XR")
+        self.result_name.set("Radio Thorax")
+        
+        # Définir le texte du résultat
+        self.result_text.delete("1.0", tk.END)
+        sample_text = """Opacité dans le lobe inférieur droit compatible avec un processus pneumonique. 
+Absence d'épanchement pleural. Silhouette cardiaque dans les limites de la normale.
+Structures osseuses sans anomalie visible.
+
+CONCLUSION: Pneumonie du lobe inférieur droit."""
+        self.result_text.insert("1.0", sample_text)
+
+    def _reset_request_form(self):
+        """Réinitialise le formulaire de demande"""
+        self.patient_id_var.set("")
+        self.order_id_var.set("")
+        self.test_code_var.set("")
+        self.test_name_var.set("")
+        self.scheduled_date_var.set("")
+        self.priority_var.set("Normal")
+        
+        self.comments_text.delete("1.0", tk.END)
+        self._on_comments_modified()
+        
+        self.status_var.set("Formulaire de demande réinitialisé")
+        self.after(3000, lambda: self.status_var.set("Prêt"))
+
+    def _reset_results_form(self):
+        """Réinitialise le formulaire de résultats"""
+        self.result_pid.set("")
+        self.result_oid.set("")
+        self.result_fid.set("")
+        self.result_code.set("")
+        self.result_name.set("")
+        
+        self.result_text.delete("1.0", tk.END)
+        
+        self.status_var.set("Formulaire de résultats réinitialisé")
+        self.after(3000, lambda: self.status_var.set("Prêt"))
+
+    def _send_request(self):
+        """Envoie la demande d'examen radiologique"""
+        if self.processing:
+            return
+            
+        pid = self.patient_id_var.get().strip()
+        if not pid:
+            messagebox.showwarning("Validation", "ID Patient requis")
+            return
+            
+        # Récupérer le contenu du champ Text
+        comments = self.comments_text.get("1.0", tk.END).strip()
+        
+        order_data = {
+            "order_id": self.order_id_var.get().strip(),
+            "test_code": self.test_code_var.get().strip(),
+            "test_name": self.test_name_var.get().strip(),
+            "scheduled_date": self.scheduled_date_var.get().strip(),
+            "priority": self.priority_var.get().strip(),
+            "comments": comments
+        }
+        
+        if not order_data["test_code"] or not order_data["test_name"]:
+            messagebox.showwarning("Validation", "Code et nom examen requis")
+            return
+            
+        # Marquer le début du traitement
+        self.processing = True
+        self.status_var.set("Envoi de la demande en cours...")
+        self.req_send_btn.configure(state="disabled")
+        self.progress.pack(side=tk.RIGHT, padx=10)
+        self.progress.start(10)
+        
+        # Utiliser un thread pour ne pas bloquer l'interface
+        threading.Thread(target=self._send_request_thread, 
+                        args=(pid, order_data), 
+                        daemon=True).start()
+
+    def _send_request_thread(self, pid, order_data):
+        """Envoie la demande dans un thread séparé"""
+        try:
+            message, control_id = self.message_builder.create_orm_o01(pid, order_data)
+            
+            # Tentative d'envoi avec 3 essais
+            max_attempts = 3
+            for attempt in range(1, max_attempts + 1):
+                self.logger.info(f"Tentative d'envoi de demande #{attempt}")
+                
+                success, response = self.mllp_client.send_message(message, "ORDER_SYSTEM")
+                
+                if success:
+                    self.logger.info(f"ORM envoyé (ID: {control_id})")
+                    self.after(0, lambda: self._show_success("Demande d'examen envoyée avec succès"))
+                    break
+                else:
+                    self.logger.warning(f"Échec de l'envoi (tentative {attempt}/{max_attempts}): {response}")
+                    if attempt == max_attempts:
+                        self.after(0, lambda: self._show_error(f"Erreur d'envoi: {response}"))
+                        
+        except Exception as e:
+            self.logger.error(f"Erreur: {str(e)}")
+            self.after(0, lambda: self._show_error(f"Erreur: {str(e)}"))
+            
+        finally:
+            # Réactiver l'interface
+            self.after(0, self._end_processing)
+    def _send_results(self):
+        """Envoie les résultats radiologiques"""
+        if self.processing:
+            return
+            
+        pid = self.result_pid.get().strip()
+        if not pid:
+            messagebox.showwarning("Validation", "ID Patient requis")
+            return
+            
+        text = self.result_text.get("1.0", tk.END).strip()
+        if not text:
+            messagebox.showwarning("Validation", "Résultat requis")
+            return
+            
+        # Marquer le début du traitement
+        self.processing = True
+        self.status_var.set("Envoi des résultats en cours...")
+        self.res_send_btn.configure(state="disabled")
+        self.progress.pack(side=tk.RIGHT, padx=10)
+        self.progress.start(10)
+        
+        results_data = [{
+            "order_id": self.result_oid.get().strip(),
+            "filler_id": self.result_fid.get().strip(),
+            "test_code": self.result_code.get().strip(),
+            "test_name": self.result_name.get().strip(),
+            "results": [{
+                "code": "RPT",
+                "name": "Rapport radiologique",
+                "value": text,
+                "unit": "",
+                "type": "TX"  # Type texte pour les rapports textuels
+            }]
+        }]
+        
+        # Utiliser un thread pour ne pas bloquer l'interface
+        threading.Thread(target=self._send_results_thread, 
+                       args=(pid, results_data), 
+                       daemon=True).start()
+
+    def _send_results_thread(self, pid, results_data):
+        """Envoie les résultats dans un thread séparé"""
+        try:
+            message, control_id = self.message_builder.create_oru_r01(pid, results_data)
+            
+            # Tentative d'envoi avec 3 essais
+            max_attempts = 3
+            for attempt in range(1, max_attempts + 1):
+                self.logger.info(f"Tentative d'envoi de résultats #{attempt}")
+                
+                success, response = self.mllp_client.send_message(message, "LAB_SYSTEM")
+                
+                if success:
+                    self.logger.info(f"ORU envoyé (ID: {control_id})")
+                    self.after(0, lambda: self._show_success("Résultats envoyés avec succès"))
+                    break
+                else:
+                    self.logger.warning(f"Échec de l'envoi (tentative {attempt}/{max_attempts}): {response}")
+                    if attempt == max_attempts:
+                        self.after(0, lambda: self._show_error(f"Erreur d'envoi: {response}"))
+                        
+        except Exception as e:
+            self.logger.error(f"Erreur: {str(e)}")
+            self.after(0, lambda: self._show_error(f"Erreur: {str(e)}"))
+            
+        finally:
+            # Réactiver l'interface
+            self.after(0, self._end_processing)
+
+    def _end_processing(self):
+        """Termine le traitement et réactive l'interface"""
+        self.processing = False
+        self.progress.stop()
+        self.progress.pack_forget()
+        self.req_send_btn.configure(state="normal")
+        self.res_send_btn.configure(state="normal")
+
+    def _show_success(self, message):
+        """Affiche un message de succès"""
+        self.status_var.set("✅ " + message)
+        self.on_message_callback(True, message)
+        # Remettre prêt après un délai
+        self.after(3000, lambda: self.status_var.set("Prêt"))
+
+    def _show_error(self, message):
+        """Affiche un message d'erreur"""
+        self.status_var.set("❌ " + message)
+        self.on_message_callback(False, message)
+        

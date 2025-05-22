@@ -1,0 +1,5 @@
+hl7apy>=1.3.3
+tk
+pytest
+# Pour logger en local
+logging

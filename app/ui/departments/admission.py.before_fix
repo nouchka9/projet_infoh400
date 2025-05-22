@@ -1,0 +1,490 @@
+"""
+Interface pour le département des admissions.
+"""
+import tkinter as tk
+from tkinter import ttk, messagebox
+import logging
+from datetime import datetime
+import threading
+import time
+
+class AdmissionFrame(ttk.Frame):
+    """Interface pour le département des admissions"""
+    
+    def __init__(self, parent, mllp_client, message_builder, on_message_callback, config=None):
+        super().__init__(parent)
+        self.logger = logging.getLogger("HL7Messenger.AdmissionUI")
+        self.parent = parent
+        self.mllp_client = mllp_client
+        self.message_builder = message_builder
+        self.on_message_callback = on_message_callback
+        self.config = config
+        
+        # État interne
+        self.processing = False
+        self.status_var = tk.StringVar(value="Prêt")
+        
+        # Mode démo/normal
+        self.debug_mode = bool(config and config.get("demo_mode"))
+        
+        # Créer les widgets
+        self._create_widgets()
+        
+        # Ajouter les retours visuels
+        self._add_visual_feedback()
+
+        # Pour éviter les envois multiples
+        self.processing = False
+
+    def _create_widgets(self):
+        """Crée les widgets de l'interface"""
+        # Configurer les styles améliorés
+        style = ttk.Style()
+        style.configure("Accent.TButton", font=("Helvetica", 10, "bold"))
+        style.configure("Success.TLabel", background="#d4edda", foreground="#155724", padding=5)
+        style.configure("Error.TLabel", background="#f8d7da", foreground="#721c24", padding=5)
+        
+        # Titre avec style amélioré
+        title_frame = ttk.Frame(self)
+        title_frame.pack(fill=tk.X, pady=(10, 5))
+        
+        title = ttk.Label(title_frame, text="Admission de Patient", style="Title.TLabel")
+        title.pack(side=tk.LEFT, padx=15)
+        
+        # Mode actif
+        mode_text = "DÉMO" if self.debug_mode else "NORMAL"
+        mode_style = "Demo.TLabel" if self.debug_mode else "Normal.TLabel"
+        mode_label = ttk.Label(title_frame, text=f"Mode: {mode_text}", style=mode_style)
+        mode_label.pack(side=tk.RIGHT, padx=15)
+        
+        # Information sur l'état actuel
+        self.status_label = ttk.Label(title_frame, textvariable=self.status_var, style="Subtitle.TLabel")
+        self.status_label.pack(side=tk.RIGHT, padx=15)
+
+        # Frame principal avec ombre et bordure légère
+        main_frame = ttk.Frame(self, padding=5)
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+
+        # Formulaire d'information patient
+        form_frame = ttk.LabelFrame(main_frame, text="Informations Patient", padding=10)
+        form_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        
+        # Configuration de la grille pour aligner les champs
+        form_frame.columnconfigure(1, weight=1)
+        form_frame.columnconfigure(3, weight=1)
+
+        # Liste des labels et variables associées
+        self.vars = {}  # Dictionnaire pour stocker les variables Tkinter
+        
+        # Première colonne
+        ttk.Label(form_frame, text="ID Patient:*").grid(row=0, column=0, sticky="w", padx=5, pady=8)
+        self.vars["patient_id_var"] = tk.StringVar()
+        patient_id_entry = ttk.Entry(form_frame, textvariable=self.vars["patient_id_var"])
+        patient_id_entry.grid(row=0, column=1, sticky="ew", padx=5, pady=8)
+        patient_id_entry.bind("<FocusIn>", self._on_entry_focus)
+        patient_id_entry.bind("<FocusOut>", self._on_entry_unfocus)
+        
+        ttk.Label(form_frame, text="Nom:*").grid(row=1, column=0, sticky="w", padx=5, pady=8)
+        self.vars["last_name_var"] = tk.StringVar()
+        last_name_entry = ttk.Entry(form_frame, textvariable=self.vars["last_name_var"])
+        last_name_entry.grid(row=1, column=1, sticky="ew", padx=5, pady=8)
+        last_name_entry.bind("<FocusIn>", self._on_entry_focus)
+        last_name_entry.bind("<FocusOut>", self._on_entry_unfocus)
+        
+        ttk.Label(form_frame, text="Prénom:*").grid(row=2, column=0, sticky="w", padx=5, pady=8)
+        self.vars["first_name_var"] = tk.StringVar()
+        first_name_entry = ttk.Entry(form_frame, textvariable=self.vars["first_name_var"])
+        first_name_entry.grid(row=2, column=1, sticky="ew", padx=5, pady=8)
+        first_name_entry.bind("<FocusIn>", self._on_entry_focus)
+        first_name_entry.bind("<FocusOut>", self._on_entry_unfocus)
+        
+        ttk.Label(form_frame, text="Date naissance:").grid(row=3, column=0, sticky="w", padx=5, pady=8)
+        self.vars["birth_date_var"] = tk.StringVar()
+        date_entry = ttk.Entry(form_frame, textvariable=self.vars["birth_date_var"])
+        date_entry.grid(row=3, column=1, sticky="ew", padx=5, pady=8)
+        date_entry.bind("<FocusIn>", self._on_entry_focus)
+        date_entry.bind("<FocusOut>", self._on_entry_unfocus)
+        ttk.Label(form_frame, text="(AAAAMMJJ)").grid(row=3, column=2, sticky="w", padx=0, pady=8)
+        
+        # Seconde colonne
+        ttk.Label(form_frame, text="Sexe:").grid(row=0, column=3, sticky="w", padx=5, pady=8)
+        self.vars["gender_var"] = tk.StringVar(value="M")  # Valeur par défaut
+        self.gender_combo = ttk.Combobox(form_frame, textvariable=self.vars["gender_var"], 
+                                  values=["M", "F", "O", "U"], 
+                                  state="readonly", width=5)
+        self.gender_combo.grid(row=0, column=4, sticky="w", padx=5, pady=8)
+        self.gender_combo.current(0)  # Sélectionne M par défaut
+        
+        # Amélioration des événements combobox pour meilleure fluidité
+        self.gender_combo.bind("<<ComboboxSelected>>", self._on_gender_selected)
+        self.gender_combo.bind("<Return>", self._on_gender_selected)
+        self.gender_combo.bind("<FocusOut>", self._on_gender_selected)
+        self.gender_combo.bind("<Tab>", self._on_gender_selected)
+        
+        # Ajout d'une infobulle pour les codes sexe
+        gender_tooltip = ttk.Label(form_frame, text="M: Masculin, F: Féminin, O: Autre, U: Inconnu", 
+                              font=("Helvetica", 8), foreground="#888888")
+        gender_tooltip.grid(row=1, column=3, columnspan=2, sticky="w", padx=5, pady=0)
+        
+        ttk.Label(form_frame, text="Service:").grid(row=2, column=3, sticky="w", padx=5, pady=8)
+        self.vars["ward_var"] = tk.StringVar()
+        ward_entry = ttk.Entry(form_frame, textvariable=self.vars["ward_var"])
+        ward_entry.grid(row=2, column=4, sticky="ew", padx=5, pady=8)
+        ward_entry.bind("<FocusIn>", self._on_entry_focus)
+        ward_entry.bind("<FocusOut>", self._on_entry_unfocus)
+        
+        ttk.Label(form_frame, text="Chambre:").grid(row=3, column=3, sticky="w", padx=5, pady=8)
+        self.vars["room_var"] = tk.StringVar()
+        room_entry = ttk.Entry(form_frame, textvariable=self.vars["room_var"])
+        room_entry.grid(row=3, column=4, sticky="ew", padx=5, pady=8)
+        room_entry.bind("<FocusIn>", self._on_entry_focus)
+        room_entry.bind("<FocusOut>", self._on_entry_unfocus)
+
+        # Séparateur
+        ttk.Separator(form_frame, orient=tk.HORIZONTAL).grid(row=4, column=0, columnspan=5, sticky="ew", pady=10)
+
+        # Type de message
+        ttk.Label(form_frame, text="Type de message:").grid(row=5, column=0, sticky="w", padx=5, pady=8)
+        self.message_type_var = tk.StringVar()
+        self.type_combo = ttk.Combobox(form_frame, textvariable=self.message_type_var, 
+                             values=[
+                                 "ADT^A01 - Admission",
+                                 "ADT^A02 - Transfert",
+                                 "ADT^A03 - Sortie",
+                                 "ADT^A04 - Inscription",
+                                 "ADT^A08 - Mise à jour"
+                             ],
+                             state="readonly", width=30)
+        self.type_combo.grid(row=5, column=1, columnspan=4, sticky="ew", padx=5, pady=8)
+        self.type_combo.current(0)  # Sélectionne le premier type par défaut
+        
+        # Amélioration des événements combobox pour meilleure fluidité
+        self.type_combo.bind("<<ComboboxSelected>>", self._on_message_type_selected)
+        self.type_combo.bind("<Return>", self._on_message_type_selected)
+        self.type_combo.bind("<FocusOut>", self._on_message_type_selected)
+        self.type_combo.bind("<Tab>", self._on_message_type_selected)
+        
+        # Texte obligatoire
+        required_text = ttk.Label(form_frame, text="* Champs obligatoires", 
+                             font=("Helvetica", 8), foreground="#888888")
+        required_text.grid(row=6, column=0, columnspan=5, sticky="w", padx=5, pady=(5, 8))
+        
+        # Aide supplémentaire
+        help_text = ttk.Label(form_frame, text="Saisissez les informations du patient et cliquez sur Envoyer", 
+                         font=("Helvetica", 9, "italic"), foreground="#666")
+        help_text.grid(row=7, column=0, columnspan=5, sticky="w", padx=5, pady=(15, 0))
+        
+        # Indication du mode de fonctionnement
+        if self.debug_mode:
+            mode_info = ttk.Label(form_frame, 
+                             text="Mode DÉMO activé : Les messages ne seront pas réellement envoyés au serveur", 
+                             font=("Helvetica", 9, "bold"), foreground="#007bff")
+            mode_info.grid(row=8, column=0, columnspan=5, sticky="w", padx=5, pady=(5, 0))
+        else:
+            mode_info = ttk.Label(form_frame, 
+                             text="Mode NORMAL activé : Les messages seront envoyés au serveur MLLP", 
+                             font=("Helvetica", 9, "bold"), foreground="#d73a49")
+            mode_info.grid(row=8, column=0, columnspan=5, sticky="w", padx=5, pady=(5, 0))
+
+        # Boutons avec style amélioré
+        button_frame = ttk.Frame(self)
+        button_frame.pack(fill=tk.X, pady=10, padx=15)
+        
+        # Indicateur d'activité
+        self.progress_var = tk.IntVar()
+        self.progress = ttk.Progressbar(button_frame, variable=self.progress_var, 
+                                  mode="indeterminate", length=150)
+        self.progress.pack(side=tk.LEFT, padx=5)
+        self.progress.pack_forget()  # Caché par défaut
+        
+        # Espacement
+        ttk.Frame(button_frame).pack(side=tk.LEFT, expand=True)
+        
+        # Bouton d'envoi
+        self.send_button = ttk.Button(button_frame, text="Envoyer", 
+                                command=self._send_message, width=15)
+        self.send_button.pack(side=tk.RIGHT, padx=5)
+        
+        # Bouton de réinitialisation
+        self.reset_button = ttk.Button(button_frame, text="Réinitialiser", 
+                                 command=self._reset_form, width=15)
+        self.reset_button.pack(side=tk.RIGHT, padx=5)
+
+        # Définir les valeurs par défaut
+        self._set_default_values()
+
+        # Configurer la navigation
+        self._add_entry_navigation()
+
+    def _add_entry_navigation(self):
+        """Ajoute la navigation entre les champs"""
+        # Parcourir tous les Entry et les connecter
+        for child in self.winfo_children():
+            if isinstance(child, ttk.Frame):
+                for subchild in child.winfo_children():
+                    self._connect_entries(subchild)
+    
+    def _connect_entries(self, parent):
+        """Connecte les événements de touche pour les Entry"""
+        for child in parent.winfo_children():
+            if isinstance(child, ttk.Entry):
+                child.bind("<Return>", self._on_entry_return)
+                child.bind("<FocusIn>", self._on_entry_focus)
+            elif isinstance(child, ttk.Combobox):
+                # Remplacer l'événement Return des combobox
+                child.bind("<Return>", self._on_entry_return, add="+")
+            elif hasattr(child, "winfo_children"):
+                self._connect_entries(child)
+    
+    def _on_entry_return(self, event):
+        """Passe au champ suivant quand on appuie sur Entrée"""
+        event.widget.tk_focusNext().focus()
+        return "break"  # Important: arrête la propagation
+    
+    def _on_entry_focus(self, event):
+        """Sélectionne tout le texte quand on entre dans un champ"""
+        event.widget.select_range(0, tk.END)
+
+    def _set_default_values(self):
+        """Initialise les champs avec des valeurs par défaut"""
+        self.vars["patient_id_var"].set("P12345")
+        self.vars["last_name_var"].set("DOE")
+        self.vars["first_name_var"].set("JOHN")
+        self.vars["birth_date_var"].set("19800101")
+        self.vars["gender_var"].set("M")
+        self.vars["ward_var"].set("CARDIO")
+        self.vars["room_var"].set("102")
+
+    def _add_visual_feedback(self):
+        """Ajoute des retours visuels aux interactions utilisateur"""
+        
+        # Surbrillance des champs lors de la sélection
+        for widget in self.winfo_children():
+            if isinstance(widget, ttk.Frame):
+                for subwidget in widget.winfo_children():
+                    if isinstance(subwidget, ttk.LabelFrame):
+                        for entry in subwidget.winfo_children():
+                            if isinstance(entry, ttk.Entry):
+                                entry.bind("<FocusIn>", self._on_entry_focus)
+                                entry.bind("<FocusOut>", self._on_entry_unfocus)
+        
+        # Effet au survol des boutons
+        self.send_button.bind("<Enter>", lambda e: self._on_button_hover(e, "send"))
+        self.send_button.bind("<Leave>", lambda e: self._on_button_leave(e, "send"))
+        
+        self.reset_button.bind("<Enter>", lambda e: self._on_button_hover(e, "reset"))
+        self.reset_button.bind("<Leave>", lambda e: self._on_button_leave(e, "reset"))
+    
+    def _on_entry_unfocus(self, event):
+        """Gère l'événement de perte de focus sur un champ"""
+        event.widget.configure(background="white")  # Retour à la couleur normale
+    
+    def _on_button_hover(self, event, button_type):
+        """Gère l'événement de survol d'un bouton"""
+        if button_type == "send":
+            self.send_button.configure(style="Accent.TButton")
+        else:
+            self.reset_button.configure(style="Accent.TButton")
+    
+    def _on_button_leave(self, event, button_type):
+        """Gère l'événement de fin de survol d'un bouton"""
+        if button_type == "send":
+            self.send_button.configure(style="TButton")
+        else:
+            self.reset_button.configure(style="TButton")
+
+    def _on_gender_selected(self, event=None):
+        """Gestionnaire d'événement pour la sélection du genre"""
+        selected = self.gender_combo.get()
+        self.vars["gender_var"].set(selected)
+        self.logger.info(f"Sexe mis à jour: {selected}")
+        
+        # Forcer la mise à jour visuelle
+        self.update_idletasks()
+
+    def _on_message_type_selected(self, event=None):
+        """Gestionnaire d'événement pour la sélection du type de message"""
+        selected = self.type_combo.get()
+        self.message_type_var.set(selected)
+        self.logger.info(f"Type de message mis à jour: {selected}")
+        
+        # Forcer la mise à jour visuelle
+        self.update_idletasks()
+
+    def _reset_form(self):
+        """Réinitialise le formulaire"""
+        # Animation de réinitialisation
+        self.status_var.set("Réinitialisation...")
+        
+        # Réinitialisation progressive pour effet visuel
+        def reset_progressively():
+            # Réinitialiser chaque champ avec un délai
+            for var_name, var in self.vars.items():
+                if var_name == "gender_var":
+                    var.set("M")
+                    self.gender_combo.current(0)  # Mettre à jour l'affichage du combobox
+                else:
+                    var.set("")
+                self.update_idletasks()
+                time.sleep(0.05)
+            
+            # Réinitialiser le type de message
+            self.message_type_var.set("ADT^A01 - Admission")
+            self.type_combo.current(0)  # Mettre à jour l'affichage du combobox
+            self.update_idletasks()
+            
+            # Remettre les valeurs par défaut
+            self._set_default_values()
+            
+            # Mettre à jour le statut
+            self.status_var.set("Formulaire réinitialisé")
+            
+            # Revenir à "Prêt" après un délai
+            self.after(2000, lambda: self.status_var.set("Prêt"))
+        
+        # Exécuter dans un thread pour ne pas bloquer l'interface
+        threading.Thread(target=reset_progressively, daemon=True).start()
+
+        # Réinitialiser l'état
+        self.processing = False
+
+    def _send_message(self):
+        """Envoie le message d'admission"""
+        # Éviter les envois multiples
+        if self.processing:
+            return
+        
+        # Indication visuelle immédiate que l'action est en cours
+        self.status_var.set("⏳ Préparation de l'envoi...")
+        self.update_idletasks()  # Force la mise à jour immédiate de l'interface
+        
+        # Marquer comme en cours de traitement
+        self.processing = True
+        self.progress.pack(side=tk.LEFT, padx=5)
+        self.progress.start(10)
+        self.send_button.configure(state="disabled")
+        
+        # Collecte des données
+        patient_data = {
+            "id": self.vars["patient_id_var"].get().strip(),
+            "last_name": self.vars["last_name_var"].get().strip(),
+            "first_name": self.vars["first_name_var"].get().strip(),
+            "birth_date": self.vars["birth_date_var"].get().strip(),
+            "gender": self.vars["gender_var"].get().strip(),
+            "ward": self.vars["ward_var"].get().strip(),
+            "room": self.vars["room_var"].get().strip(),
+        }
+
+        # Validation
+        if not patient_data["id"] or not patient_data["last_name"] or not patient_data["first_name"]:
+            self._show_error("Les champs ID, nom et prénom sont obligatoires")
+            return
+
+        # Type de message
+        message_type_code = self.message_type_var.get().split(" - ")[0]
+        
+        # Mettre à jour l'interface une fois de plus avant de lancer le thread
+        self.status_var.set(f"⏳ Envoi du message {message_type_code}...")
+        self.update_idletasks()
+
+        # Fonction pour exécuter l'envoi dans un thread séparé
+        def send_thread():
+            try:
+                # Vérifier si on est en mode démo
+                is_demo = self.debug_mode
+                
+                if is_demo:
+                    # Mode démo/test - Simulation plus rapide
+                    self.logger.info(f"[MODE DÉMO] Simulation d'envoi pour {message_type_code}")
+                    time.sleep(0.8)  # Délai réduit pour plus de fluidité
+                    self._show_success(f"Message {message_type_code} envoyé avec succès (mode démo)")
+                    return
+                
+                # Mode normal - Envoi réel
+                # Construction du message HL7
+                if message_type_code == "ADT^A01":
+                    message, control_id = self.message_builder.create_adt_a01(patient_data)
+                elif message_type_code == "ADT^A08":
+                    # Si vous avez ajouté cette méthode au builder
+                    if hasattr(self.message_builder, 'create_adt_a08'):
+                        message, control_id = self.message_builder.create_adt_a08(patient_data)
+                    else:
+                        message, control_id = self.message_builder.create_adt_a01(patient_data)
+                else:
+                    # Fallback pour les autres types
+                    message, control_id = self.message_builder.create_adt_a01(patient_data)
+                
+                # Envoi
+                destination = "ADMISSION_SYSTEM"  # Ce nom doit exister dans config.py > hosts
+                
+                # Log pour débogage
+                self.logger.info(f"[MODE NORMAL] Envoi du message {message_type_code} vers {destination}")
+                self.logger.debug(f"Message: {message[:100]}...") 
+                
+                # Tester la connexion d'abord
+                try:
+                    # Si la méthode existe
+                    if hasattr(self.mllp_client, 'test_connection'):
+                        conn_ok, error = self.mllp_client.test_connection(destination)
+                        if not conn_ok:
+                            self._show_error(f"Connexion impossible au serveur : {error}")
+                            return
+                except Exception as e:
+                    # Si la méthode n'existe pas, continuer
+                    self.logger.warning(f"Test de connexion non disponible: {e}")
+                
+                # Envoyer le message
+                success, response = self.mllp_client.send_message(message, destination)
+
+                # Traitement de la réponse
+                if success:
+                    self.logger.info(f"Message {message_type_code} envoyé avec succès (ID: {control_id})")
+                    self._show_success(f"Message {message_type_code} envoyé avec succès")
+                else:
+                    self.logger.warning(f"⚠️ Erreur lors de l'envoi: {response}")
+                    self._show_warning(f"Erreur d'envoi: {response}")
+
+            except Exception as e:
+                # Logging amélioré pour le débogage
+                import traceback
+                error_details = traceback.format_exc()
+                self.logger.error(f"Erreur détaillée lors de l'envoi: {error_details}")
+                self._show_error(f"Impossible d'envoyer le message : {e}")
+            
+            finally:
+                # Réactiver l'interface
+                self.after(0, self._end_processing)
+        
+        # Démarrer le thread d'envoi
+        threading.Thread(target=send_thread, daemon=True).start()
+    
+    def _end_processing(self):
+        """Termine le traitement et réactive l'interface"""
+        self.processing = False
+        self.progress.stop()
+        self.progress.pack_forget()
+        self.send_button.configure(state="normal")
+    
+    def _show_success(self, message):
+        """Affiche un message de succès"""
+        self.status_var.set("✅ " + message)
+        self.on_message_callback(True, message)
+        # Animation de succès
+        self.status_label.configure(style="Success.TLabel")
+        self.after(3000, lambda: self.status_label.configure(style="Subtitle.TLabel"))
+        self.after(3000, lambda: self.status_var.set("Prêt"))
+    
+    def _show_warning(self, message):
+        """Affiche un avertissement"""
+        self.status_var.set("⚠️ " + message)
+        self.on_message_callback(False, message)
+        messagebox.showwarning("Avertissement", message)
+        self.after(3000, lambda: self.status_var.set("Prêt"))
+    
+    def _show_error(self, message):
+        """Affiche une erreur"""
+        self.status_var.set("❌ " + message)
+        self.on_message_callback(False, message)
+        messagebox.showerror("Erreur", message)
+        self._end_processing()
+        self.after(3000, lambda: self.status_var.set("Prêt"))

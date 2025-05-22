@@ -1,0 +1,52 @@
+[
+  {
+    "id": "PAT001",
+    "first_name": "John",
+    "last_name": "Doe",
+    "birth_date": "19700101",
+    "gender": "M",
+    "address": {
+      "street": "123 Main St",
+      "city": "Anytown",
+      "state": "NY",
+      "zip": "12345",
+      "country": "USA"
+    }
+  },
+  {
+    "id": "PAT002",
+    "first_name": "Jane",
+    "last_name": "Smith",
+    "birth_date": "19800212",
+    "gender": "F",
+    "address": {
+      "street": "456 Oak Ave",
+      "city": "Othertown",
+      "state": "CA",
+      "zip": "94321",
+      "country": "USA"
+    }
+  },
+  {
+    "id": "PAT003",
+    "first_name": "Alice",
+    "last_name": "Johnson",
+    "birth_date": "19900525",
+    "gender": "F",
+    "address": {
+      "street": "789 Pine St",
+      "city": "Somewhere",
+      "state": "TX",
+      "zip": "75123",
+      "country": "USA"
+    }
+  },
+  {
+    "id": "P12345",
+    "first_name": "JOHN",
+    "last_name": "DOE",
+    "birth_date": "19800101",
+    "gender": "M",
+    "address": {}
+  }
+]

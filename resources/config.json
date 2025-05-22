@@ -1,0 +1,35 @@
+{
+    "hosts": {
+        "ADMISSION_SYSTEM": {
+            "host": "127.0.0.1",
+            "port": 2576
+        },
+        "LAB_SYSTEM": {
+            "host": "127.0.0.1",
+            "port": 2577
+        },
+        "ORDER_SYSTEM": {
+            "host": "127.0.0.1",
+            "port": 2578
+        },
+        "PHARMACY_SYSTEM": {
+            "host": "127.0.0.1",
+            "port": 2579
+        }
+    },
+    "mllp": {
+        "timeout": 5,
+        "retries": 3,
+        "demo_mode": false
+    },
+    "ui": {
+        "theme": "clam",
+        "font_size": 10,
+        "debug_mode": false
+    },
+    "logging": {
+        "level": "INFO",
+        "file_enabled": true,
+        "file_path": "logs/hl7_messenger.log"
+    }
+}

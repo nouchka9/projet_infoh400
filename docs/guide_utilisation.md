@@ -1389,7 +1389,6 @@ HL7 Expert : Certification experte
 
 
 📚 Conclusion et support
-🎉 Félicitations !
 Vous avez maintenant en main le guide d'utilisation complet de HL7 Messenger, une solution de messagerie hospitalière de niveau professionnel. Ce système vous permet de :
 ✅ Gérer la communication entre tous les départements hospitaliers
 ✅ Envoyer et recevoir des messages HL7 standardisés
@@ -1401,7 +1400,7 @@ Contacts du projet
 
 👩‍💻 Équipe de développement : Anouchka, Christelle, Roméo, Calixta
 🏫 Institution : Université Libre de Bruxelles (ULB)
-📧 Contact principal : ngueanouchka@gmail.com
+📧 Contact principal : ngueanouchka@gmail.com ou jeannette.ngue@ulb.be
 🌐 Dépôt GitHub : https://github.com/nouchka9/projet_infoh400
 
 Ressources de support
@@ -1505,10 +1504,6 @@ Tkinter Community : Interface graphique native
 GitHub : Plateforme de collaboration
 
 
-🌟 Message final
-HL7 Messenger représente bien plus qu'un simple projet académique. C'est une démonstration concrète de la capacité à développer des solutions logicielles de niveau professionnel dans le domaine médical, en respectant les standards internationaux et les bonnes pratiques de l'industrie.
-🎯 Ce que vous avez accompli
-
 ✅ Solution complète de messagerie hospitalière
 ✅ Standards respectés : HL7 v2.5 et MLLP
 ✅ Architecture robuste avec gestion d'erreurs
@@ -1524,15 +1519,12 @@ Prototypes hospitaliers pour PME du secteur santé
 Outils de développement pour intégrateurs HL7
 Références techniques pour étudiants en informatique médicale
 
-💡 Conseil pour la suite
-Conservez ce projet dans votre portfolio professionnel. Il démontre des compétences techniques avancées, une capacité de travail en équipe, et une compréhension des enjeux de l'informatique médicale - des atouts précieux pour votre carrière future !
 
 🎓 HL7 Messenger v1.0 - Guide d'utilisation complet
 Développé avec passion par l'équipe INFOH400
 Université Libre de Bruxelles - Mai 2025
 📞 Besoin d'aide ? Contactez-nous via GitHub ou par email !
 🌟 N'hésitez pas à contribuer au projet et à le faire évoluer !
-🏆 Fier d'avoir participé à ce projet d'excellence !
 
 Fin du guide d'utilisation - Merci d'avoir choisi HL7 Messenger ! ✨
 © 2025 - Équipe INFOH400 - Université Libre de Bruxelles

@@ -1,0 +1,147 @@
+<!-- Extension web (web_interface.html) -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HL7 Messenger - Interface Web</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .status { margin-top: 10px; padding: 10px; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏥 HL7 Messenger - Interface Web</h1>
+        
+        <form id="patientForm">
+            <h2>📋 Nouveau Patient</h2>
+            
+            <div class="form-group">
+                <label for="patientId">🆔 ID Patient *</label>
+                <input type="text" id="patientId" name="patientId" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="lastName">👤 Nom *</label>
+                <input type="text" id="lastName" name="lastName" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="firstName">👤 Prénom *</label>
+                <input type="text" id="firstName" name="firstName" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="birthDate">📅 Date de naissance</label>
+                <input type="date" id="birthDate" name="birthDate">
+            </div>
+            
+            <div class="form-group">
+                <label for="gender">⚧ Sexe</label>
+                <select id="gender" name="gender">
+                    <option value="M">Masculin</option>
+                    <option value="F">Féminin</option>
+                    <option value="O">Autre</option>
+                    <option value="U">Inconnu</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="ward">🏢 Service</label>
+                <input type="text" id="ward" name="ward">
+            </div>
+            
+            <div class="form-group">
+                <label for="room">🛏️ Chambre</label>
+                <input type="text" id="room" name="room">
+            </div>
+            
+            <button type="submit">🚀 Enregistrer Patient</button>
+        </form>
+        
+        <div id="status" class="status" style="display: none;"></div>
+        
+        <h2>📊 Patients récents</h2>
+        <div id="patientsList">
+            <p>Chargement...</p>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript pour interaction avec l'API
+        document.getElementById('patientForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const patientData = Object.fromEntries(formData.entries());
+            
+            // Convertir date au format HL7 (AAAAMMJJ)
+            if (patientData.birthDate) {
+                patientData.birth_date = patientData.birthDate.replace(/-/g, '');
+                delete patientData.birthDate;
+            }
+            
+            try {
+                const response = await fetch('/api/patient', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(patientData)
+                });
+                
+                const result = await response.json();
+                const statusDiv = document.getElementById('status');
+                
+                if (response.ok) {
+                    statusDiv.className = 'status success';
+                    statusDiv.textContent = '✅ Patient enregistré avec succès!';
+                    statusDiv.style.display = 'block';
+                    e.target.reset();
+                    loadPatients(); // Recharger la liste
+                } else {
+                    statusDiv.className = 'status error';
+                    statusDiv.textContent = '❌ Erreur: ' + result.message;
+                    statusDiv.style.display = 'block';
+                }
+            } catch (error) {
+                const statusDiv = document.getElementById('status');
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ Erreur de connexion: ' + error.message;
+                statusDiv.style.display = 'block';
+            }
+        });
+        
+        async function loadPatients() {
+            try {
+                const response = await fetch('/api/patients');
+                const patients = await response.json();
+                
+                const patientsDiv = document.getElementById('patientsList');
+                if (patients.length === 0) {
+                    patientsDiv.innerHTML = '<p>Aucun patient enregistré</p>';
+                } else {
+                    patientsDiv.innerHTML = patients.map(patient => `
+                        <div style="border: 1px solid #ddd; padding: 10px; margin: 5px 0; border-radius: 4px;">
+                            <strong>${patient.id}</strong> - ${patient.last_name} ${patient.first_name}
+                            <br><small>Service: ${patient.ward || 'Non spécifié'} | Chambre: ${patient.room || 'Non spécifié'}</small>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                document.getElementById('patientsList').innerHTML = '<p>Erreur lors du chargement des patients</p>';
+            }
+        }
+        
+        // Charger les patients au démarrage
+        loadPatients();
+    </script>
+</body>
+</html>

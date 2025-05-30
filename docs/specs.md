@@ -692,11 +692,664 @@ def test_hl7_message_validation():
 - **Storage**: 1 GB free disk space
 - **Network**: 100 Mbps Ethernet connection
 
-#### 10.1.2 Software Dependencies
-```bash
-# Python environment
+10.1.2 Software Dependencies
+bash# Python environment
 Python 3.8+
 pip 21.0+
 
 # Required packages
-hl7apy>=1.
+hl7apy>=1.3.0
+tkinter (included with Python)
+pytest>=6.0.0
+flake8>=4.0.0
+coverage>=6.0.0
+
+# Operating system support
+Windows 10/11
+macOS 10.14+
+Linux Ubuntu 18.04+
+10.1.3 Network Configuration
+python# Default network settings
+NETWORK_CONFIG = {
+    "mllp_server_port": 2575,
+    "client_timeout": 30,
+    "max_connections": 50,
+    "buffer_size": 8192,
+    "firewall_ports": [2575, 2576, 2577, 2578, 2579],
+    "allowed_hosts": ["localhost", "127.0.0.1", "::1"]
+}
+10.2 Installation Procedures
+10.2.1 Standard Installation
+bash# Clone repository
+git clone https://github.com/nouchka9/projet_infoh400.git
+cd hl7_messenger
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Linux/macOS
+# or
+venv\Scripts\activate     # Windows
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Validate installation
+python validate_fixes.py
+
+# Initialize database
+python -c "from app.db.database import initialize_database; initialize_database()"
+10.2.2 Production Deployment
+bash# Production environment setup
+export HL7_ENV=production
+export HL7_LOG_LEVEL=INFO
+export HL7_DATA_PATH=/opt/hl7_messenger/data
+export HL7_BACKUP_PATH=/opt/hl7_messenger/backups
+
+# Service configuration (systemd example)
+sudo cp deployment/hl7-messenger.service /etc/systemd/system/
+sudo systemctl enable hl7-messenger
+sudo systemctl start hl7-messenger
+10.3 Configuration Management
+10.3.1 Environment-Specific Configuration
+json{
+  "development": {
+    "log_level": "DEBUG",
+    "database_path": "resources/patients.json",
+    "backup_enabled": true,
+    "authentication_required": false
+  },
+  "testing": {
+    "log_level": "INFO",
+    "database_path": "test_data/patients.json",
+    "backup_enabled": false,
+    "mock_external_systems": true
+  },
+  "production": {
+    "log_level": "WARNING",
+    "database_path": "/opt/hl7_messenger/data/patients.json",
+    "backup_enabled": true,
+    "backup_interval_hours": 24,
+    "authentication_required": true,
+    "ssl_enabled": true
+  }
+}
+10.3.2 Runtime Configuration
+python# Configuration loader
+class ConfigurationManager:
+    def load_environment_config(self, env: str) -> Dict
+    def get_database_settings(self) -> DatabaseConfig
+    def get_network_settings(self) -> NetworkConfig
+    def get_security_settings(self) -> SecurityConfig
+    def validate_configuration(self) -> List[str]  # Returns validation errors
+
+11. Monitoring and Maintenance
+11.1 System Monitoring
+11.1.1 Key Performance Indicators (KPIs)
+python# Monitoring metrics
+MONITORING_METRICS = {
+    "system_health": {
+        "cpu_usage_percent": {"warning": 70, "critical": 85},
+        "memory_usage_percent": {"warning": 75, "critical": 90},
+        "disk_space_percent": {"warning": 80, "critical": 95}
+    },
+    "application_metrics": {
+        "messages_per_minute": {"normal": 10, "peak": 50},
+        "average_response_time_ms": {"good": 200, "acceptable": 500},
+        "error_rate_percent": {"warning": 1, "critical": 5},
+        "active_connections": {"normal": 10, "max": 50}
+    },
+    "business_metrics": {
+        "daily_message_count": {"target": 100},
+        "department_usage": {"balanced": 0.8},
+        "user_activity": {"active_users_per_day": 5}
+    }
+}
+11.1.2 Health Check Endpoints
+pythonclass HealthCheckService:
+    def check_database_connectivity(self) -> HealthStatus
+    def check_network_connectivity(self) -> HealthStatus
+    def check_hl7_engine_status(self) -> HealthStatus
+    def check_disk_space(self) -> HealthStatus
+    def check_memory_usage(self) -> HealthStatus
+    def generate_health_report(self) -> HealthReport
+11.1.3 Alerting Configuration
+python# Alert definitions
+ALERTS = {
+    "high_memory_usage": {
+        "condition": "memory_usage > 85%",
+        "severity": "warning",
+        "notification": ["email", "log"],
+        "cooldown_minutes": 15
+    },
+    "message_processing_failure": {
+        "condition": "error_rate > 5%",
+        "severity": "critical",
+        "notification": ["email", "log", "dashboard"],
+        "cooldown_minutes": 5
+    },
+    "database_connection_failure": {
+        "condition": "database_connectivity == false",
+        "severity": "critical",
+        "notification": ["email", "log", "dashboard"],
+        "immediate": true
+    }
+}
+11.2 Logging and Auditing
+11.2.1 Comprehensive Logging Strategy
+python# Logging configuration
+LOGGING_CONFIG = {
+    "version": 1,
+    "formatters": {
+        "detailed": {
+            "format": "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s"
+        },
+        "simple": {
+            "format": "%(levelname)s - %(message)s"
+        }
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+            "level": "INFO"
+        },
+        "file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": "logs/hl7_messenger.log",
+            "formatter": "detailed",
+            "maxBytes": 10485760,  # 10MB
+            "backupCount": 5
+        },
+        "audit": {
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": "logs/audit.log",
+            "formatter": "detailed",
+            "when": "midnight",
+            "backupCount": 30
+        }
+    },
+    "loggers": {
+        "HL7Messenger": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+            "propagate": false
+        },
+        "HL7Messenger.Audit": {
+            "handlers": ["audit"],
+            "level": "INFO",
+            "propagate": false
+        }
+    }
+}
+11.2.2 Audit Event Categories
+Event CategoryExamplesRetention PeriodAuthenticationLogin, logout, failed attempts1 yearData AccessPatient record access, search queries6 monthsMessage ProcessingHL7 message send/receive, parsing errors3 monthsConfiguration ChangesSettings updates, user management2 yearsSystem EventsStartup, shutdown, errors6 months
+11.3 Maintenance Procedures
+11.3.1 Routine Maintenance Tasks
+python# Automated maintenance scheduler
+class MaintenanceScheduler:
+    @schedule.every(24).hours
+    def daily_backup(self):
+        # Create full system backup
+        # Validate backup integrity
+        # Clean up old backups
+        
+    @schedule.every(7).days
+    def weekly_cleanup(self):
+        # Archive old messages
+        # Compress log files
+        # Update system statistics
+        
+    @schedule.every(30).days
+    def monthly_maintenance(self):
+        # Database optimization
+        # Security audit
+        # Performance analysis
+        
+    @schedule.every(3).months
+    def quarterly_review(self):
+        # Full system health check
+        # Capacity planning review
+        # Security assessment update
+11.3.2 Backup and Recovery Procedures
+python# Backup management
+class BackupManager:
+    def create_full_backup(self) -> BackupResult:
+        """Create complete system backup including data, config, and logs"""
+        
+    def create_incremental_backup(self) -> BackupResult:
+        """Create backup of changes since last backup"""
+        
+    def validate_backup(self, backup_path: str) -> ValidationResult:
+        """Verify backup integrity and completeness"""
+        
+    def restore_from_backup(self, backup_path: str, target_date: str) -> RestoreResult:
+        """Restore system to specific backup point"""
+        
+    def list_available_backups(self) -> List[BackupInfo]:
+        """List all available backup points with metadata"""
+
+12. Error Handling and Recovery
+12.1 Error Classification
+12.1.1 Error Categories and Responses
+Error TypeSeverityResponse StrategyRecovery ActionNetwork TimeoutWarningRetry with backoffAutomatic retry (3 attempts)Invalid HL7 MessageErrorReturn AR ACKLog error, notify userDatabase CorruptionCriticalStop operationsRestore from backupAuthentication FailureWarningBlock accessAccount lockout protectionSystem Resource ExhaustionCriticalGraceful degradationAlert administrator
+12.1.2 Error Handling Framework
+pythonclass ErrorHandler:
+    def handle_network_error(self, error: NetworkError) -> ErrorResponse:
+        # Implement retry logic with exponential backoff
+        # Log error details for analysis
+        # Return appropriate user message
+        
+    def handle_hl7_parsing_error(self, error: HL7Error) -> ErrorResponse:
+        # Generate detailed error report
+        # Create AR (Application Reject) ACK
+        # Log for compliance audit
+        
+    def handle_database_error(self, error: DatabaseError) -> ErrorResponse:
+        # Assess error severity
+        # Attempt automatic recovery
+        # Escalate if critical
+        
+    def handle_authentication_error(self, error: AuthError) -> ErrorResponse:
+        # Log security event
+        # Implement progressive delays
+        # Alert on suspicious patterns
+12.2 Fault Tolerance Mechanisms
+12.2.1 Circuit Breaker Pattern
+pythonclass CircuitBreaker:
+    def __init__(self, failure_threshold: int = 5, timeout: int = 60):
+        self.failure_threshold = failure_threshold
+        self.timeout = timeout
+        self.failure_count = 0
+        self.last_failure_time = None
+        self.state = "CLOSED"  # CLOSED, OPEN, HALF_OPEN
+        
+    def call(self, func, *args, **kwargs):
+        if self.state == "OPEN":
+            if time.time() - self.last_failure_time > self.timeout:
+                self.state = "HALF_OPEN"
+            else:
+                raise CircuitBreakerOpenError()
+                
+        try:
+            result = func(*args, **kwargs)
+            self.on_success()
+            return result
+        except Exception as e:
+            self.on_failure()
+            raise
+12.2.2 Graceful Degradation
+python# Service degradation levels
+DEGRADATION_LEVELS = {
+    "normal": {
+        "features": ["all"],
+        "performance": "optimal"
+    },
+    "reduced": {
+        "features": ["core_messaging", "basic_ui"],
+        "performance": "reduced",
+        "disabled": ["advanced_reports", "real_time_dashboard"]
+    },
+    "minimal": {
+        "features": ["emergency_messaging"],
+        "performance": "minimal",
+        "disabled": ["ui", "reports", "history"]
+    }
+}
+12.3 Disaster Recovery
+12.3.1 Recovery Procedures
+pythonclass DisasterRecoveryPlan:
+    def assess_damage(self) -> DamageAssessment:
+        """Evaluate system state and determine recovery approach"""
+        
+    def recover_database(self, backup_date: str) -> RecoveryResult:
+        """Restore database from most recent valid backup"""
+        
+    def recover_configuration(self) -> RecoveryResult:
+        """Restore system configuration to last known good state"""
+        
+    def validate_recovery(self) -> ValidationResult:
+        """Verify system integrity after recovery"""
+        
+    def generate_recovery_report(self) -> RecoveryReport:
+        """Document recovery process and lessons learned"""
+12.3.2 Business Continuity Planning
+
+Recovery Time Objective (RTO): 4 hours maximum downtime
+Recovery Point Objective (RPO): 1 hour maximum data loss
+Critical Functions: Message processing, patient data access
+Backup Sites: Local and cloud backup storage
+Communication Plan: Stakeholder notification procedures
+
+
+13. Compliance and Standards
+13.1 Healthcare Standards Compliance
+13.1.1 HL7 v2.5 Standard Compliance
+
+Message Structure: Full compliance with HL7 v2.5 specification
+Segment Implementation: Complete MSH, PID, PV1, OBR, OBX, ORC segments
+Data Types: Proper implementation of HL7 data types (ST, ID, TS, etc.)
+Validation Rules: Comprehensive validation according to HL7 standards
+Conformance Statement: Documented compliance with specific HL7 profiles
+
+13.1.2 MLLP Protocol Compliance
+
+RFC 3549 Compliance: Full implementation of MLLP standard
+Message Framing: Correct use of start/end block characters
+Connection Management: Proper TCP connection handling
+Error Handling: Standard error response protocols
+Performance: Meets MLLP performance recommendations
+
+13.1.3 Medical Data Protection
+python# Data protection compliance framework
+class ComplianceManager:
+    def validate_patient_consent(self, patient_id: str) -> ConsentStatus
+    def log_data_access(self, user: str, patient_id: str, action: str)
+    def anonymize_data_for_reporting(self, data: Dict) -> Dict
+    def generate_compliance_report(self, period: str) -> ComplianceReport
+    def audit_data_access_patterns(self) -> AuditReport
+13.2 Security Standards
+13.2.1 Data Encryption Standards
+
+Data at Rest: AES-256 encryption for sensitive data files
+Data in Transit: TLS 1.3 for network communications (production)
+Key Management: Secure key storage and rotation procedures
+Authentication: Strong password policies and session management
+
+13.2.2 Access Control Standards
+python# Role-based access control (RBAC)
+RBAC_PERMISSIONS = {
+    "administrator": {
+        "patients": ["create", "read", "update", "delete", "export"],
+        "messages": ["create", "read", "update", "delete", "export"],
+        "system": ["configure", "monitor", "backup", "restore"],
+        "users": ["create", "read", "update", "delete"]
+    },
+    "healthcare_worker": {
+        "patients": ["create", "read", "update"],
+        "messages": ["create", "read"],
+        "system": ["monitor"],
+        "users": ["read_own"]
+    },
+    "read_only": {
+        "patients": ["read"],
+        "messages": ["read"],
+        "system": ["monitor"],
+        "users": ["read_own"]
+    }
+}
+13.3 Quality Assurance Standards
+13.3.1 Software Quality Metrics
+MetricTargetMeasurement MethodCode Coverage>90%Automated testing with coverage.pyCyclomatic Complexity<10 per functionStatic analysis with flake8Documentation Coverage>95%Docstring analysisBug Density<0.1 bugs/KLOCIssue tracking and code analysisPerformance<200ms response timeAutomated performance testing
+13.3.2 Validation and Verification
+pythonclass QualityAssuranceFramework:
+    def validate_hl7_conformance(self, message: str) -> ConformanceResult
+    def verify_data_integrity(self, dataset: str) -> IntegrityResult
+    def validate_user_interface(self, component: str) -> UIValidationResult
+    def verify_security_controls(self) -> SecurityValidationResult
+    def validate_performance_requirements(self) -> PerformanceResult
+
+14. Future Enhancements
+14.1 Planned Features (v2.0)
+14.1.1 Advanced HL7 Support
+
+HL7 FHIR R4/R5: Modern REST-based HL7 standard implementation
+Additional Message Types: SIU (Scheduling), MDM (Medical Document Management)
+Enhanced Validation: Real-time HL7 message validation with detailed error reporting
+Message Routing: Intelligent message routing based on content and destination
+
+14.1.2 Enterprise Features
+python# Enterprise enhancement roadmap
+ENTERPRISE_FEATURES = {
+    "database_support": {
+        "postgresql": "Primary enterprise database",
+        "mysql": "Alternative enterprise database",
+        "mongodb": "Document-based storage option"
+    },
+    "web_interface": {
+        "framework": "React.js with REST API",
+        "features": ["responsive_design", "real_time_updates", "mobile_support"]
+    },
+    "integration": {
+        "apis": ["REST", "GraphQL", "WebSocket"],
+        "protocols": ["HTTPS", "SFTP", "WebDAV"],
+        "formats": ["JSON", "XML", "CSV"]
+    },
+    "analytics": {
+        "reporting": "Advanced business intelligence",
+        "dashboards": "Real-time operational dashboards",
+        "alerts": "Intelligent alerting system"
+    }
+}
+14.2 Scalability Improvements
+14.2.1 Microservices Architecture
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   API Gateway   │    │  Web Interface  │    │  Mobile Apps    │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         └───────────────────────┼───────────────────────┘
+                                 │
+         ┌───────────────────────────────────────────────┐
+         │              Load Balancer                    │
+         └───────────────────────────────────────────────┘
+                                 │
+    ┌────────────┬────────────┬────────────┬────────────┐
+    │            │            │            │            │
+┌───▼───┐   ┌───▼───┐   ┌───▼───┐   ┌───▼───┐   ┌───▼───┐
+│ HL7   │   │Message│   │Patient│   │ Auth  │   │Report │
+│Service│   │Service│   │Service│   │Service│   │Service│
+└───────┘   └───────┘   └───────┘   └───────┘   └───────┘
+    │            │            │            │            │
+    └────────────┼────────────┼────────────┼────────────┘
+                 │            │            │
+         ┌───────────────────────────────────────────────┐
+         │          Shared Database Cluster              │
+         └───────────────────────────────────────────────┘
+14.2.2 Cloud Deployment Options
+
+Docker Containerization: Full containerized deployment
+Kubernetes Orchestration: Scalable cloud-native deployment
+AWS/Azure/GCP Support: Multi-cloud deployment capabilities
+Auto-scaling: Dynamic resource allocation based on load
+
+14.3 Advanced Analytics
+14.3.1 Business Intelligence Features
+pythonclass AdvancedAnalytics:
+    def generate_department_performance_report(self, period: str) -> PerformanceReport
+    def analyze_message_flow_patterns(self) -> FlowAnalysis
+    def predict_system_capacity_needs(self, forecast_period: int) -> CapacityForecast
+    def detect_anomalous_usage_patterns(self) -> AnomalyReport
+    def generate_compliance_dashboard(self) -> ComplianceDashboard
+14.3.2 Machine Learning Integration
+
+Predictive Analytics: Forecast system usage and capacity needs
+Anomaly Detection: Identify unusual patterns in message flow
+Natural Language Processing: Extract insights from text fields
+Automated Quality Assurance: ML-powered message validation
+
+
+15. Conclusion
+15.1 Project Summary
+HL7 Messenger v1.0 represents a comprehensive, production-ready healthcare messaging solution that successfully implements the HL7 v2.5 standard with MLLP transport protocol. The system demonstrates enterprise-level architecture principles while maintaining simplicity and usability for healthcare professionals.
+15.1.1 Key Achievements
+
+✅ Complete HL7 Implementation: Full support for ADT, ORU, and ORM message types
+✅ Professional Architecture: Layered MVC design with clear separation of concerns
+✅ Robust Communication: Bidirectional MLLP networking with acknowledgments
+✅ Data Persistence: Comprehensive JSON-based storage with backup capabilities
+✅ User Experience: Intuitive interfaces for all hospital departments
+✅ Quality Assurance: Extensive testing and validation frameworks
+
+15.1.2 Technical Excellence
+The implementation showcases advanced software engineering practices including:
+
+Design Patterns: Repository, Factory, Observer, and Circuit Breaker patterns
+Error Handling: Comprehensive error management with graceful degradation
+Performance Optimization: Multi-threading and efficient resource management
+Security Implementation: Authentication, authorization, and audit capabilities
+Maintainability: Modular design with clear interfaces and documentation
+
+15.2 Academic and Professional Value
+15.2.1 Educational Outcomes
+This project serves as an exemplary demonstration of:
+
+Healthcare Informatics: Practical application of medical information standards
+Software Architecture: Enterprise-level system design and implementation
+Team Collaboration: Effective role distribution and collaborative development
+Documentation: Professional-grade technical documentation and user guides
+Quality Engineering: Testing strategies and quality assurance practices
+
+15.2.2 Industry Relevance
+The system addresses real-world healthcare challenges:
+
+Interoperability: Solving communication barriers between healthcare systems
+Standardization: Implementing international healthcare communication standards
+Compliance: Meeting regulatory and quality requirements
+Scalability: Designing for future growth and enhancement
+Usability: Creating intuitive interfaces for healthcare professionals
+
+15.3 Recommendations for Deployment
+15.3.1 Immediate Deployment Readiness
+The current system is ready for:
+
+Pilot Implementations: Small-scale hospital department testing
+Educational Environments: Medical informatics training programs
+Development Projects: Foundation for larger healthcare integration projects
+Compliance Testing: HL7 standard validation and testing
+
+15.3.2 Production Deployment Considerations
+For full production deployment, consider:
+
+Database Migration: Transition from JSON to enterprise database
+Security Hardening: Implement additional security layers for production
+Performance Optimization: Load testing and capacity planning
+Integration Planning: Connection with existing hospital information systems
+Staff Training: User education and system administration training
+
+15.4 Future Development Roadmap
+15.4.1 Short-term Enhancements (6 months)
+
+Web Interface Development: Browser-based access for improved mobility
+Enhanced Reporting: Advanced analytics and business intelligence features
+Integration APIs: REST/GraphQL APIs for third-party integrations
+Mobile Applications: Native mobile apps for healthcare workers
+
+15.4.2 Long-term Vision (1-2 years)
+
+HL7 FHIR Implementation: Modern REST-based HL7 standard support
+Cloud-Native Architecture: Microservices and container-based deployment
+AI/ML Integration: Intelligent message processing and analytics
+Enterprise Features: Multi-tenant support and advanced security
+
+
+16. Appendices
+16.1 Appendix A: HL7 Message Examples
+16.1.1 Complete ADT^A01 Message
+MSH|^~\&|HL7MESSENGER|HOSPITAL|ADT|HOSPITAL|20250529191532||ADT^A01|20250529-12345|P|2.5
+EVN||20250529191532|||anouchka^Ngue^Anouchka
+PID|1||P12345^^^HOSPITAL^MR||DOE^JOHN^MICHAEL||19800101|M|||123 HEALTH ST^^BRUSSELS^^1000^BE||(32)123456789|EN|S||P12345|123-45-6789
+PV1|1|I|CARDIO^102^A^HOSPITAL||E|||MARTIN^JEAN^PAUL^MD|||MED||||A|||MARTIN^JEAN^PAUL^MD|INS|BE|A|||||||||||||||||||20250529191532
+16.1.2 Complete ORU^R01 Message
+MSH|^~\&|HL7MESSENGER|HOSPITAL|LAB|HOSPITAL|20250529143000||ORU^R01|LAB-20250529-001|P|2.5
+PID|1||P12345^^^HOSPITAL^MR||DOE^JOHN^MICHAEL||19800101|M
+OBR|1|LAB-001-20250529|LAB-001-20250529|GLU^GLUCOSE^L|||20250529143000||||||||DR.MARTIN||||||||F
+OBX|1|NM|GLU^GLUCOSE^L|1|95|mg/dL|70-110|N|||F|||20250529143000
+OBX|2|NM|HBA1C^HEMOGLOBIN A1C^L|2|5.8|%|<6.5|N|||F|||20250529143000
+16.2 Appendix B: Configuration Examples
+16.2.1 Production Configuration File
+json{
+  "environment": "production",
+  "application": {
+    "name": "HL7 Messenger",
+    "version": "1.0.0",
+    "log_level": "INFO"
+  },
+  "network": {
+    "mllp_server": {
+      "host": "0.0.0.0",
+      "port": 2575,
+      "max_connections": 100,
+      "timeout": 30
+    },
+    "destinations": {
+      "ADMISSION_SYSTEM": {"host": "10.1.1.100", "port": 2575},
+      "LAB_SYSTEM": {"host": "10.1.2.100", "port": 2575},
+      "ORDER_SYSTEM": {"host": "10.1.3.100", "port": 2575},
+      "PHARMACY_SYSTEM": {"host": "10.1.4.100", "port": 2575}
+    }
+  },
+  "database": {
+    "type": "postgresql",
+    "host": "db.hospital.local",
+    "port": 5432,
+    "database": "hl7_messenger",
+    "username": "hl7_user",
+    "pool_size": 20
+  },
+  "security": {
+    "authentication_required": true,
+    "session_timeout": 28800,
+    "password_policy": {
+      "min_length": 8,
+      "require_uppercase": true,
+      "require_numbers": true,
+      "require_special": true
+    },
+    "encryption": {
+      "algorithm": "AES-256",
+      "key_rotation_days": 90
+    }
+  },
+  "monitoring": {
+    "metrics_enabled": true,
+    "health_check_interval": 60,
+    "alert_thresholds": {
+      "memory_usage": 85,
+      "cpu_usage": 80,
+      "disk_usage": 90,
+      "error_rate": 5
+    }
+  }
+}
+16.3 Appendix C: API Reference
+16.3.1 REST API Endpoints (Future v2.0)
+# Patient Management
+GET    /api/v1/patients              # List all patients
+GET    /api/v1/patients/{id}         # Get specific patient
+POST   /api/v1/patients              # Create new patient
+PUT    /api/v1/patients/{id}         # Update patient
+DELETE /api/v1/patients/{id}         # Delete patient
+
+# Message Management
+GET    /api/v1/messages              # List messages
+GET    /api/v1/messages/{id}         # Get specific message
+POST   /api/v1/messages/send         # Send HL7 message
+GET    /api/v1/messages/history      # Message history
+
+# System Management
+GET    /api/v1/health                # System health check
+GET    /api/v1/metrics               # System metrics
+POST   /api/v1/backup                # Create backup
+GET    /api/v1/config                # Get configuration
+16.4 Appendix D: Troubleshooting Guide
+16.4.1 Common Error Codes and Solutions
+Error CodeDescriptionCommon CausesSolutionHL7-001Invalid message structureMissing required segmentsCheck HL7 message formatHL7-002Parse errorMalformed HL7 syntaxValidate message syntaxNET-001Connection timeoutNetwork issuesCheck network connectivityNET-002Port in useAnother process using portChange port or stop processDB-001Database errorFile corruption/permissionsRestore from backupAUTH-001Authentication failedInvalid credentialsCheck username/password
+16.4.2 Performance Optimization Tips
+
+Memory Usage: Increase JVM heap size for large message volumes
+Network Performance: Adjust buffer sizes for high-throughput scenarios
+Database Performance: Regular maintenance and optimization
+Threading: Tune thread pool sizes based on concurrent users
+
+
+Document Information:
+
+Title: Technical Specifications - HL7 Messenger v1.0
+Version: 1.0.0
+Date: May 2025
+Authors: Anouchka Ngue, Christelle, Roméo, Calixta
+Institution: Université Libre de Bruxelles (ULB)
+Course: INFO-H-400 "Medical Information Systems"
+Status: Production Ready
+
+© 2025 - HL7 Messenger Development Team - ULB Academic Project
+This document represents the complete technical specifications for the HL7 Messenger system developed as part of the INFO-H-400 course at the Université Libre de Bruxelles. All specifications are based on industry standards and best practices for healthcare information systems.

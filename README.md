@@ -1,4 +1,4 @@
-# 🏥 HL7 Messenger - Système de Messagerie Hospitalière Production
+# 🏥 HL7 Messenger - Production Hospital Messaging System
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
 ![HL7](https://img.shields.io/badge/HL7-v2.5-green)
@@ -8,215 +8,215 @@
 
 ## 📋 Description
 
-**HL7 Messenger** est une solution complète et **100% fonctionnelle** de messagerie hospitalière inter-départementale. Cette application production-ready permet la communication sécurisée et standardisée entre les services hospitaliers (Admission, Laboratoire, Radiologie, Pharmacie) via le protocole HL7 v2.5 et MLLP.
+**HL7 Messenger** is a comprehensive and **100% functional** inter-departmental hospital messaging solution. This production-ready application enables secure and standardized communication between hospital services (Admission, Laboratory, Radiology, Pharmacy) via HL7 v2.5 protocol and MLLP.
 
-**🎯 Système entièrement testé et validé avec communication bidirectionnelle confirmée.**
+**🎯 Fully tested and validated system with confirmed bidirectional communication.**
 
-## ✨ Fonctionnalités principales
+## ✨ Main Features
 
-### 🏗️ Architecture de niveau entreprise
-- **🔧 Moteur HL7 complet** : Génération et parsing des messages HL7 v2.5 avec hl7apy
-- **📡 Serveur/Client MLLP** : Communication réseau robuste avec accusés de réception
-- **🖥️ 4 interfaces départementales** spécialisées avec workflows métier complets
-- **💾 Base de données JSON** avec persistance automatique des patients et messages
-- **📊 Dashboard centralisé** avec authentification et monitoring temps réel
+### 🏗️ Enterprise-level architecture
+- **🔧 Complete HL7 engine**: Generation and parsing of HL7 v2.5 messages with hl7apy
+- **📡 MLLP Server/Client**: Robust network communication with acknowledgments
+- **🖥️ 4 specialized departmental interfaces**: Complete business workflows
+- **💾 JSON database**: Automatic persistence of patients and messages
+- **📊 Centralized dashboard**: Authentication and real-time monitoring
 
-### 📨 Messages HL7 supportés (100% testés)
-- **ADT^A01/A02/A03/A04/A08** : Admissions, transferts, sorties, inscriptions, mises à jour
-- **ORU^R01** : Résultats d'examens multi-observations (laboratoire, radiologie)
-- **ORM^O01** : Commandes et prescriptions avec commentaires
-- **ACK** : Accusés de réception automatiques (AA/AE/AR)
+### 📨 Supported HL7 messages (100% tested)
+- **ADT^A01/A02/A03/A04/A08**: Admissions, transfers, discharges, registrations, updates
+- **ORU^R01**: Multi-observation exam results (laboratory, radiology)
+- **ORM^O01**: Orders and prescriptions with comments
+- **ACK**: Automatic acknowledgments (AA/AE/AR)
 
-### 🏥 Départements intégrés et opérationnels
-- **🏥 Admission** : Enregistrement patients avec 5 types ADT + validation complète
-- **🔬 Laboratoire** : Résultats d'analyses multi-tests avec valeurs de référence
-- **📡 Radiologie** : Commandes d'examens et résultats d'imagerie
-- **💊 Pharmacie** : Gestion prescriptions avec posologies et interactions
+### 🏥 Integrated and operational departments
+- **🏥 Admission**: Patient registration with 5 ADT types + complete validation
+- **🔬 Laboratory**: Multi-test analysis results with reference values
+- **📡 Radiology**: Exam orders and imaging results
+- **💊 Pharmacy**: Prescription management with dosages and interactions
 
-## 🚀 Installation et démarrage
+## 🚀 Installation and Startup
 
-### Prérequis système
+### System Requirements
 - **Python 3.8+**
-- **Bibliothèques** : `hl7apy`, `tkinter` (inclus), voir `requirements.txt`
-- **Réseau** : Ports 2575-2579 disponibles
+- **Libraries**: `hl7apy`, `tkinter` (included), see `requirements.txt`
+- **Network**: Ports 2575-2579 available
 
-### Installation express
+### Express Installation
 ```bash
-# Cloner le projet
+# Clone the project
 git clone https://github.com/nouchka9/projet_infoh400.git
 cd hl7_messenger
 
-# Installation des dépendances
+# Install dependencies
 pip install -r requirements.txt
 
-# Validation de l'installation
+# Validate installation
 python validate_fixes.py
 ```
 
-## 🛠️ Lancement du système
+## 🛠️ System Launch
 
-### Démarrage rapide (Recommandé)
+### Quick Start (Recommended)
 ```bash
-# Méthode optimisée avec validation automatique
+# Optimized method with automatic validation
 python run_app.py
 
-# Alternative : Point d'entrée classique
+# Alternative: Classic entry point
 python app/main.py
 ```
 
-### Déploiement production complet
+### Complete Production Deployment
 ```bash
-# Terminal 1: Serveur HL7 (réception messages)
+# Terminal 1: HL7 Server (message reception)
 python app/network/mllp_server.py
 
-# Terminal 2: Interface utilisateur (envoi messages)
+# Terminal 2: User Interface (message sending)
 python run_app.py
 
-# Vérification : Serveur écoute sur localhost:2575
+# Verification: Server listening on localhost:2575
 telnet localhost 2575
 ```
 
-### Multi-serveurs par département
+### Multi-servers by department
 ```bash
-# Serveurs spécialisés (optionnel)
+# Specialized servers (optional)
 python app/network/mllp_server.py 2576  # Admission
-python app/network/mllp_server.py 2577  # Laboratoire  
-python app/network/mllp_server.py 2578  # Radiologie
-python app/network/mllp_server.py 2579  # Pharmacie
+python app/network/mllp_server.py 2577  # Laboratory  
+python app/network/mllp_server.py 2578  # Radiology
+python app/network/mllp_server.py 2579  # Pharmacy
 ```
 
-### Authentification par défaut
-- **Utilisateur** : `admin`
-- **Mot de passe** : `password`
+### Default Authentication
+- **Username**: `admin`
+- **Password**: `password`
 
-## 🏗️ Architecture technique détaillée
+## 🏗️ Detailed Technical Architecture
 
 ```
-hl7_messenger/                     # 🏠 Racine du projet
-├── app/                          # 📦 Application principale
-│   ├── ui/                       # 🖥️ Interface utilisateur complète
-│   │   ├── app.py                # 🎯 Application principale (point d'entrée UI)
-│   │   ├── dashboard.py          # 📊 Dashboard avec monitoring temps réel
-│   │   ├── history_viewer.py     # 📜 Historique des messages avec filtres
-│   │   ├── login_screen.py       # 🔐 Authentification utilisateur
-│   │   └── departments/          # 🏥 Interfaces départementales spécialisées
-│   │       ├── admission.py      # 🏥 ADT^A01-A08 + formulaire 12 champs
-│   │       ├── laboratory.py     # 🔬 ORU^R01 + résultats multi-tests
-│   │       ├── radiology.py      # 📡 ORM^O01 + ORU^R01 + imagerie
-│   │       └── pharmacy.py       # 💊 ORM^O01 + prescriptions + posologies
-│   ├── hl7_engine/              # ⚙️ Moteur HL7 (cœur métier)
-│   │   ├── builder.py           # 🏗️ Construction messages HL7 (3 types)
-│   │   ├── parser.py            # 🔍 Parsing hl7apy + validation
-│   │   └── ack.py               # ✅ Génération accusés de réception
-│   ├── network/                 # 🌐 Communication MLLP
-│   │   ├── mllp_client.py       # 📤 Client MLLP + destinations multiples
-│   │   └── mllp_server.py       # 📥 Serveur MLLP + threading + parsing
-│   ├── db/                      # 💾 Couche de données
-│   │   ├── database.py          # 🗃️ Interface base de données JSON
-│   │   └── repositories/        # 📚 Couches d'accès données (CRUD)
-│   │       ├── patient_repository.py    # 👤 Gestion patients
-│   │       └── message_repository.py    # 💬 Gestion messages HL7
-│   ├── models/                  # 📊 Modèles de données
-│   │   ├── patient.py           # 👤 Modèle patient (12 attributs)
-│   │   └── message.py           # 💬 Modèle message HL7 complet
-│   ├── utils/                   # 🔧 Utilitaires système
-│   │   ├── logging_utils.py     # 📝 Système de logs avancé
-│   │   ├── security.py          # 🔒 Authentification + sécurité
-│   │   └── constants.py         # ⚙️ Constantes application
-│   ├── config.py                # ⚙️ Configuration centralisée
-│   └── main.py                  # 🚀 Point d'entrée principal
-├── tests/                       # 🧪 Suite de tests complète
-│   ├── test_ui.py               # 🖥️ Tests interface utilisateur
-│   ├── test_hl7_engine.py       # ⚙️ Tests moteur HL7 + messages
-│   └── test_network.py          # 🌐 Tests communication MLLP
-├── docs/                        # 📚 Documentation complète
-│   ├── guide_utilisation.md     # 📖 Guide utilisateur détaillé
-│   └── specs.md                 # 📋 Spécifications techniques
-├── resources/                   # 📁 Ressources et données
-│   ├── patients.json            # 👥 Base de données patients
-│   ├── messages.json            # 💬 Historique des messages
-│   └── logs/                    # 📝 Fichiers de logs
-├── backup_*/                    # 💾 Sauvegardes automatiques
-├── requirements.txt             # 📋 Dépendances Python
-├── run_app.py                   # 🚀 Lanceur optimisé avec validation
-├── validate_fixes.py            # ✅ Script de validation système
-└── README.md                    # 📄 Documentation principale
+hl7_messenger/                     # 🏠 Project root
+├── app/                          # 📦 Main application
+│   ├── ui/                       # 🖥️ Complete user interface
+│   │   ├── app.py                # 🎯 Main application (UI entry point)
+│   │   ├── dashboard.py          # 📊 Dashboard with real-time monitoring
+│   │   ├── history_viewer.py     # 📜 Message history with filters
+│   │   ├── login_screen.py       # 🔐 User authentication
+│   │   └── departments/          # 🏥 Specialized departmental interfaces
+│   │       ├── admission.py      # 🏥 ADT^A01-A08 + 12-field form
+│   │       ├── laboratory.py     # 🔬 ORU^R01 + multi-test results
+│   │       ├── radiology.py      # 📡 ORM^O01 + ORU^R01 + imaging
+│   │       └── pharmacy.py       # 💊 ORM^O01 + prescriptions + dosages
+│   ├── hl7_engine/              # ⚙️ HL7 Engine (business core)
+│   │   ├── builder.py           # 🏗️ HL7 message construction (3 types)
+│   │   ├── parser.py            # 🔍 hl7apy parsing + validation
+│   │   └── ack.py               # ✅ Acknowledgment generation
+│   ├── network/                 # 🌐 MLLP Communication
+│   │   ├── mllp_client.py       # 📤 MLLP Client + multiple destinations
+│   │   └── mllp_server.py       # 📥 MLLP Server + threading + parsing
+│   ├── db/                      # 💾 Data layer
+│   │   ├── database.py          # 🗃️ JSON database interface
+│   │   └── repositories/        # 📚 Data access layers (CRUD)
+│   │       ├── patient_repository.py    # 👤 Patient management
+│   │       └── message_repository.py    # 💬 HL7 message management
+│   ├── models/                  # 📊 Data models
+│   │   ├── patient.py           # 👤 Patient model (12 attributes)
+│   │   └── message.py           # 💬 Complete HL7 message model
+│   ├── utils/                   # 🔧 System utilities
+│   │   ├── logging_utils.py     # 📝 Advanced logging system
+│   │   ├── security.py          # 🔒 Authentication + security
+│   │   └── constants.py         # ⚙️ Application constants
+│   ├── config.py                # ⚙️ Centralized configuration
+│   └── main.py                  # 🚀 Main entry point
+├── tests/                       # 🧪 Complete test suite
+│   ├── test_ui.py               # 🖥️ User interface tests
+│   ├── test_hl7_engine.py       # ⚙️ HL7 engine + message tests
+│   └── test_network.py          # 🌐 MLLP communication tests
+├── docs/                        # 📚 Complete documentation
+│   ├── guide_utilisation.md     # 📖 Detailed user guide
+│   └── specs.md                 # 📋 Technical specifications
+├── resources/                   # 📁 Resources and data
+│   ├── patients.json            # 👥 Patient database
+│   ├── messages.json            # 💬 Message history
+│   └── logs/                    # 📝 Log files
+├── backup_*/                    # 💾 Automatic backups
+├── requirements.txt             # 📋 Python dependencies
+├── run_app.py                   # 🚀 Optimized launcher with validation
+├── validate_fixes.py            # ✅ System validation script
+└── README.md                    # 📄 Main documentation
 ```
 
-## 🛠️ Stack technique validée
+## 🛠️ Validated Technology Stack
 
-### Technologies core
-- **Python 3.8+** : Langage principal avec support complet
-- **tkinter** : Interface graphique native multi-plateforme
-- **hl7apy 1.3+** : Bibliothèque officielle HL7 avec validation
-- **threading** : Traitement asynchrone multi-clients
-- **JSON** : Persistance des données structurées
+### Core Technologies
+- **Python 3.8+**: Main language with full support
+- **tkinter**: Native cross-platform graphical interface
+- **hl7apy 1.3+**: Official HL7 library with validation
+- **threading**: Multi-client asynchronous processing
+- **JSON**: Structured data persistence
 
-### Protocoles et standards
-- **HL7 v2.5** : Standard de messagerie médicale (100% conforme)
-- **MLLP (RFC 3549)** : Protocole de transport réseau médical
-- **TCP/IP** : Communication réseau robuste
-- **PEP 8** : Standards de codage Python (100% conformité)
+### Protocols and Standards
+- **HL7 v2.5**: Medical messaging standard (100% compliant)
+- **MLLP (RFC 3549)**: Medical network transport protocol
+- **TCP/IP**: Robust network communication
+- **PEP 8**: Python coding standards (100% compliance)
 
-### Qualité et tests
-- **Logging** : Traçabilité complète avec niveaux
-- **Exception handling** : Gestion d'erreurs robuste
-- **Unit testing** : Couverture > 95%
-- **Integration testing** : Tests end-to-end validés
+### Quality and Testing
+- **Logging**: Complete traceability with levels
+- **Exception handling**: Robust error management
+- **Unit testing**: >95% coverage
+- **Integration testing**: Validated end-to-end tests
 
-## 👥 Équipe de développement et responsabilités
+## 👥 Development Team and Responsibilities
 
-| Développeur | Composants principaux | Réalisations techniques |
-|-------------|----------------------|------------------------|
-| **Anouchka** 🔧 | **Serveur HL7 + Architecture** | Serveur MLLP multi-clients, parsing HL7, stockage automatique patients, architecture modulaire |
-| **Christelle** 📤 | **Client HL7 + Communication** | Client MLLP multi-destinations, gestion ACK, timeouts réseau, protocoles de communication |
-| **Roméo** 🖥️ | **Interface utilisateur** | 4 interfaces départementales, dashboard, authentification, UX/UI professionnelle |
-| **Calixta** 📊 | **Données + Documentation** | Modèles de données, persistance JSON, repositories CRUD, documentation complète |
+| Developer | Main Components | Technical Achievements |
+|-----------|-----------------|------------------------|
+| **Anouchka** 🔧 | **HL7 Server + Architecture** | Multi-client MLLP server, HL7 parsing, automatic patient storage, modular architecture |
+| **Christelle** 📤 | **HL7 Client + Communication** | Multi-destination MLLP client, ACK management, network timeouts, communication protocols |
+| **Roméo** 🖥️ | **User Interface** | 4 departmental interfaces, dashboard, authentication, professional UX/UI |
+| **Calixta** 📊 | **Data + Documentation** | Data models, JSON persistence, CRUD repositories, complete documentation |
 
-### Répartition par expertise
-- **Architecture système** : Anouchka (serveur, moteur HL7)
-- **Communication réseau** : Christelle (client MLLP, protocoles)  
-- **Interface utilisateur** : Roméo (tkinter, UX/UI, ergonomie)
-- **Gestion des données** : Calixta (modèles, persistance, docs)
+### Distribution by Expertise
+- **System Architecture**: Anouchka (server, HL7 engine)
+- **Network Communication**: Christelle (MLLP client, protocols)  
+- **User Interface**: Roméo (tkinter, UX/UI, ergonomics)
+- **Data Management**: Calixta (models, persistence, docs)
 
-## 🧪 Tests et validation (100% validés)
+## 🧪 Testing and Validation (100% validated)
 
-### Exécution des tests
+### Test Execution
 ```bash
-# Suite complète de tests
+# Complete test suite
 python -m unittest discover tests -v
 
-# Tests par composant
-python -m unittest tests.test_hl7_engine    # Moteur HL7
-python -m unittest tests.test_network       # Communication MLLP
-python -m unittest tests.test_ui           # Interface utilisateur
+# Component tests
+python -m unittest tests.test_hl7_engine    # HL7 Engine
+python -m unittest tests.test_network       # MLLP Communication
+python -m unittest tests.test_ui           # User Interface
 
-# Validation installation et fixes
+# Installation and fixes validation
 python validate_fixes.py
 ```
 
-### Couverture des tests confirmée
-- ✅ **Moteur HL7** : Génération ADT/ORU/ORM + parsing + validation
-- ✅ **Communication MLLP** : Client/serveur + protocole + ACK
-- ✅ **Interface utilisateur** : 4 départements + workflow complet
-- ✅ **Base de données** : CRUD patients/messages + persistance
-- ✅ **Tests d'intégration** : Workflow end-to-end complet
+### Confirmed Test Coverage
+- ✅ **HL7 Engine**: ADT/ORU/ORM generation + parsing + validation
+- ✅ **MLLP Communication**: Client/server + protocol + ACK
+- ✅ **User Interface**: 4 departments + complete workflow
+- ✅ **Database**: CRUD patients/messages + persistence
+- ✅ **Integration Tests**: Complete end-to-end workflow
 
-### Scénarios de test validés
-1. **Admission patient** : Formulaire → ADT^A01 → Envoi MLLP → Serveur → ACK → UI ✅
-2. **Résultats laboratoire** : Multi-tests → ORU^R01 → Communication → Stockage ✅
-3. **Prescription pharmacie** : Médicaments → ORM^O01 → Validation → Historique ✅
-4. **Communication réseau** : Timeouts, reconnexions, gestion d'erreurs ✅
+### Validated Test Scenarios
+1. **Patient admission**: Form → ADT^A01 → MLLP Send → Server → ACK → UI ✅
+2. **Laboratory results**: Multi-tests → ORU^R01 → Communication → Storage ✅
+3. **Pharmacy prescription**: Medications → ORM^O01 → Validation → History ✅
+4. **Network communication**: Timeouts, reconnections, error handling ✅
 
-## 🔧 Configuration système
+## 🔧 System Configuration
 
-### Paramètres réseau par défaut
+### Default Network Parameters
 ```python
-# Configuration serveur (config.py)
-MLLP_SERVER_HOST = "0.0.0.0"      # Écoute toutes interfaces
-MLLP_SERVER_PORT = 2575            # Port principal HL7
+# Server configuration (config.py)
+MLLP_SERVER_HOST = "0.0.0.0"      # Listen on all interfaces
+MLLP_SERVER_PORT = 2575            # Main HL7 port
 
-# Destinations clients
+# Client destinations
 DESTINATIONS = {
     "ADMISSION_SYSTEM": {"host": "localhost", "port": 2576},
     "LAB_SYSTEM": {"host": "localhost", "port": 2577},
@@ -224,190 +224,190 @@ DESTINATIONS = {
     "PHARMACY_SYSTEM": {"host": "localhost", "port": 2579}
 }
 
-# Paramètres communication
-TIMEOUT = 30                       # Timeout réseau (secondes)
-MAX_MESSAGE_SIZE = 1048576         # Taille max message (1MB)
+# Communication parameters
+TIMEOUT = 30                       # Network timeout (seconds)
+MAX_MESSAGE_SIZE = 1048576         # Max message size (1MB)
 ```
 
-### Base de données JSON
-- **Localisation** : `resources/patients.json`, `resources/messages.json`
-- **Format** : JSON structuré avec indexation automatique
-- **Sauvegarde** : Automatique après chaque opération
-- **Backup** : Sauvegardes horodatées dans `backup_*/`
+### JSON Database
+- **Location**: `resources/patients.json`, `resources/messages.json`
+- **Format**: Structured JSON with automatic indexing
+- **Backup**: Automatic after each operation
+- **Backup**: Timestamped backups in `backup_*/`
 
-## 📊 Métriques de qualité (Production Ready)
+## 📊 Quality Metrics (Production Ready)
 
-### Qualité du code
-- ✅ **Standards PEP 8** : 100% conformité avec validation automatique
-- ✅ **Documentation** : Docstrings complètes + comments inline
-- ✅ **Tests unitaires** : Couverture > 95% avec assertions robustes
-- ✅ **Gestion d'erreurs** : Try/catch exhaustif avec logging
-- ✅ **Performance** : Threading optimisé + gestion mémoire
+### Code Quality
+- ✅ **PEP 8 Standards**: 100% compliance with automatic validation
+- ✅ **Documentation**: Complete docstrings + inline comments
+- ✅ **Unit Tests**: >95% coverage with robust assertions
+- ✅ **Error Handling**: Exhaustive try/catch with logging
+- ✅ **Performance**: Optimized threading + memory management
 
-### Fonctionnalités métier
-- ✅ **Messages HL7** : 3 types complets (ADT, ORU, ORM) + 12 variantes
-- ✅ **Communication** : MLLP bidirectionnelle avec ACK validation
-- ✅ **Interfaces** : 4 départements entièrement fonctionnels
-- ✅ **Workflow** : End-to-end complet testé et validé
-- ✅ **Données** : Persistance patients + messages + historique
+### Business Features
+- ✅ **HL7 Messages**: 3 complete types (ADT, ORU, ORM) + 12 variants
+- ✅ **Communication**: Bidirectional MLLP with ACK validation
+- ✅ **Interfaces**: 4 fully functional departments
+- ✅ **Workflow**: Complete end-to-end tested and validated
+- ✅ **Data**: Patient + message + history persistence
 
-### Fiabilité système
-- ✅ **Stabilité** : Version sans threading pour compatibilité macOS
-- ✅ **Robustesse** : Gestion exhaustive des cas d'erreur
-- ✅ **Monitoring** : Logging détaillé + dashboard temps réel
-- ✅ **Sécurité** : Authentification + validation des entrées
+### System Reliability
+- ✅ **Stability**: Version without threading for macOS compatibility
+- ✅ **Robustness**: Exhaustive error case handling
+- ✅ **Monitoring**: Detailed logging + real-time dashboard
+- ✅ **Security**: Authentication + input validation
 
-## 🚨 Guide de dépannage
+## 🚨 Troubleshooting Guide
 
-### Problèmes courants et solutions
+### Common Problems and Solutions
 
-#### 🔌 Problème de connexion réseau
+#### 🔌 Network Connection Issues
 ```bash
-# Vérifier que le serveur est lancé
+# Check if server is running
 python app/network/mllp_server.py
 
-# Tester la connectivité
+# Test connectivity
 telnet localhost 2575
 
-# Si port occupé, changer le port
+# If port is busy, change port
 python app/network/mllp_server.py 2580
 ```
 
-#### 📦 Erreur de module Python
+#### 📦 Python Module Errors
 ```bash
-# Ajouter le projet au PYTHONPATH
+# Add project to PYTHONPATH
 export PYTHONPATH=$PYTHONPATH:$(pwd)
 
-# Ou utiliser le lanceur optimisé
+# Or use optimized launcher
 python run_app.py
 ```
 
-#### 🔍 Validation du système
+#### 🔍 System Validation
 ```bash
-# Vérifier tous les composants
+# Check all components
 python validate_fixes.py
 
-# Diagnostic complet
+# Complete diagnostics
 python -m unittest discover tests -v
 ```
 
-#### 📝 Analyse des logs
+#### 📝 Log Analysis
 ```bash
-# Logs du serveur
+# Server logs
 tail -f logs/hl7_messenger.log
 
-# Logs par composant
+# Component logs
 ls -la logs/
 ```
 
-## 📈 Évolutions et roadmap
+## 📈 Evolution and Roadmap
 
-### Version actuelle (v1.0.0)
-- ✅ **Communication HL7/MLLP** complète et testée
-- ✅ **4 départements** avec interfaces spécialisées
-- ✅ **Base de données JSON** avec persistance
-- ✅ **Architecture modulaire** extensible
+### Current Version (v1.0.0)
+- ✅ **Complete HL7/MLLP communication** tested
+- ✅ **4 departments** with specialized interfaces
+- ✅ **JSON database** with persistence
+- ✅ **Modular architecture** extensible
 
-### Évolutions prévues (v2.0)
-- 🔮 **Base de données relationnelle** (PostgreSQL/MySQL)
-- 🌐 **Interface web** (Django/Flask) en complément
-- 🔐 **Authentification avancée** (LDAP/Active Directory)
-- 📊 **Analytics et reporting** avec tableaux de bord
-- 🔄 **Support HL7 FHIR** (R4/R5) en plus du v2.5
-- 🐳 **Containerisation Docker** pour déploiement
+### Planned Evolution (v2.0)
+- 🔮 **Relational database** (PostgreSQL/MySQL)
+- 🌐 **Web interface** (Django/Flask) as complement
+- 🔐 **Advanced authentication** (LDAP/Active Directory)
+- 📊 **Analytics and reporting** with dashboards
+- 🔄 **HL7 FHIR support** (R4/R5) in addition to v2.5
+- 🐳 **Docker containerization** for deployment
 
-## 📄 Contexte académique
+## 📄 Academic Context
 
-Ce projet a été développé dans le cadre du cours **INFO-H-400 "Medical Information Systems"** à l'**Université Libre de Bruxelles (ULB)**.
+This project was developed as part of the **INFO-H-400 "Medical Information Systems"** course at the **Université Libre de Bruxelles (ULB)**.
 
-### Objectifs pédagogiques atteints
-- ✅ **Maîtrise du standard HL7** v2.5 avec implémentation complète
-- ✅ **Architecture logicielle** de niveau entreprise avec patterns MVC
-- ✅ **Travail collaboratif** avec répartition des responsabilités
-- ✅ **Communication réseau** avec protocoles médicaux (MLLP)
-- ✅ **Interface utilisateur** professionnelle et ergonomique
-- ✅ **Tests et validation** avec couverture exhaustive
+### Achieved Educational Objectives
+- ✅ **Mastery of HL7 standard** v2.5 with complete implementation
+- ✅ **Software architecture** enterprise-level with MVC patterns
+- ✅ **Collaborative work** with responsibility distribution
+- ✅ **Network communication** with medical protocols (MLLP)
+- ✅ **User interface** professional and ergonomic
+- ✅ **Testing and validation** with exhaustive coverage
 
-**Développé par :** Anouchka Ngue, Christelle, Roméo et Calixta  
-**Année académique :** 2024-2025  
-**Statut :** Production Ready - Projet finalisé ✅
+**Developed by:** Anouchka Ngue, Christelle, Roméo and Calixta  
+**Academic Year:** 2024-2025  
+**Status:** Production Ready - Completed Project ✅
 
-## 🤝 Contribution et développement
+## 🤝 Contribution and Development
 
-### Standards de contribution
-- **Respecter PEP 8** avec validation `flake8`
-- **Ajouter tests unitaires** pour nouvelles fonctionnalités
-- **Documenter les changements** avec docstrings
-- **Valider avec** `python validate_fixes.py`
+### Contribution Standards
+- **Respect PEP 8** with `flake8` validation
+- **Add unit tests** for new features
+- **Document changes** with docstrings
+- **Validate with** `python validate_fixes.py`
 
-### Workflow de développement
+### Development Workflow
 ```bash
-# 1. Fork et clone
-git clone [votre-fork]
+# 1. Fork and clone
+git clone [your-fork]
 cd hl7_messenger
 
-# 2. Branche feature
-git checkout -b feature/nouvelle-fonctionnalite
+# 2. Feature branch
+git checkout -b feature/new-functionality
 
-# 3. Développement et tests
+# 3. Development and testing
 python -m unittest discover tests
 python validate_fixes.py
 
-# 4. Commit et push
+# 4. Commit and push
 git commit -m "feat: description"
-git push origin feature/nouvelle-fonctionnalite
+git push origin feature/new-functionality
 
-# 5. Pull Request avec description détaillée
+# 5. Pull Request with detailed description
 ```
 
-## 📞 Support et contact
+## 📞 Support and Contact
 
-### Ressources disponibles
-- 📚 **Documentation complète** : `docs/guide_utilisation.md`
-- 🎥 **Démonstrations** : Workflow complet documenté
-- 🐛 **Issues GitHub** : [Signaler un problème](https://github.com/nouchka9/projet_infoh400/issues)
-- 📧 **Contact développeur principal** : jeannette.ngue@ulb.be
+### Available Resources
+- 📚 **Complete documentation**: `docs/guide_utilisation.md`
+- 🎥 **Demonstrations**: Documented complete workflow
+- 🐛 **GitHub Issues**: [Report a problem](https://github.com/nouchka9/projet_infoh400/issues)
+- 📧 **Main developer contact**: jeannette.ngue@ulb.be
 
-### Monitoring et logs
-- 📁 **Logs système** : `logs/hl7_messenger.log`
-- 📊 **Dashboard intégré** : Monitoring temps réel
-- 🔍 **Mode debug** : Logging verbose disponible
-- 📈 **Métriques** : Compteurs messages/connexions
-
----
-
-## 🎉 Remerciements et crédits
-
-### Projets open source utilisés
-- **[hl7apy](https://github.com/crs4/hl7apy)** : Bibliothèque HL7 pour Python
-- **[Python tkinter](https://docs.python.org/3/library/tkinter.html)** : Interface graphique native
-- **Communauté Python** : Ecosystem et support technique
-
-### Mentions spéciales
-- **Professeurs ULB** : Encadrement projet INFO-H-400
-- **Standards HL7 International** : Spécifications officielles
-- **Communauté médicale** : Retours et besoins métier
+### Monitoring and Logs
+- 📁 **System logs**: `logs/hl7_messenger.log`
+- 📊 **Integrated dashboard**: Real-time monitoring
+- 🔍 **Debug mode**: Verbose logging available
+- 📈 **Metrics**: Message/connection counters
 
 ---
 
-## 🏆 Résultats et impact
+## 🎉 Acknowledgments and Credits
 
-### Métriques de réussite
-- 📊 **100% des fonctionnalités** spécifiées implémentées
-- ✅ **Communication bidirectionnelle** validée end-to-end
-- 🏥 **4 départements hospitaliers** entièrement fonctionnels
-- 📨 **15+ types de messages HL7** supportés et testés
-- 🔧 **Architecture modulaire** permettant extensions futures
+### Open Source Projects Used
+- **[hl7apy](https://github.com/crs4/hl7apy)**: HL7 library for Python
+- **[Python tkinter](https://docs.python.org/3/library/tkinter.html)**: Native graphical interface
+- **Python Community**: Ecosystem and technical support
 
-### Niveau de qualité atteint
-- 🎯 **Production Ready** : Système utilisable en environnement réel
-- 🏗️ **Architecture entreprise** : Patterns et bonnes pratiques respectées
-- 📚 **Documentation complète** : Guide utilisateur + spécifications techniques
-- 🧪 **Tests exhaustifs** : Couverture fonctionnelle et technique validée
+### Special Mentions
+- **ULB Professors**: INFO-H-400 project supervision
+- **HL7 International Standards**: Official specifications
+- **Medical Community**: Feedback and business needs
 
 ---
 
-**HL7 Messenger v1.0.0** - *Système de messagerie hospitalière production-ready*  
-*Fièrement développé par l'équipe INFOH400 - Université Libre de Bruxelles* 🎓
+## 🏆 Results and Impact
 
-**🚀 Projet finalisé en mai 2025 - Communication HL7 bidirectionnelle 100% opérationnelle**
+### Success Metrics
+- 📊 **100% of specified features** implemented
+- ✅ **Bidirectional communication** validated end-to-end
+- 🏥 **4 hospital departments** fully functional
+- 📨 **15+ HL7 message types** supported and tested
+- 🔧 **Modular architecture** enabling future extensions
+
+### Quality Level Achieved
+- 🎯 **Production Ready**: System usable in real environment
+- 🏗️ **Enterprise architecture**: Respected patterns and best practices
+- 📚 **Complete documentation**: User guide + technical specifications
+- 🧪 **Exhaustive testing**: Validated functional and technical coverage
+
+---
+
+**HL7 Messenger v1.0.0** - *Production-ready hospital messaging system*  
+*Proudly developed by the INFOH400 team - Université Libre de Bruxelles* 🎓
+
+**🚀 Project completed in May 2025 - 100% operational bidirectional HL7 communication**

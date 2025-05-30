@@ -1534,7 +1534,7 @@ This user guide is an integral part of the project developed as part of the INFO
 
 ---
 
-## 🚀 Next Steps
+## Next Steps
 
 ### To Start Immediately
 📥 **Install**: `pip install -r requirements.txt`  
@@ -1563,10 +1563,10 @@ This user guide is an integral part of the project developed as part of the INFO
 ## 🏅 Special Thanks
 
 ### To the Development Team
-- **Anouchka Ngue** 👩‍💻: Server architecture and technical leadership
-- **Christelle** 📡: Network communication and MLLP protocols
-- **Roméo** 🎨: User interface and user experience
-- **Calixta** 📊: Data management and documentation
+- **Anouchka Ngue** : Server architecture and technical leadership
+- **Christelle** : Network communication and MLLP protocols
+- **Roméo** : User interface and user experience
+- **Calixta** : Data management and documentation
 
 ### To Academic Supervision
 - **ULB Professors**: INFO-H-400 project supervision
@@ -1590,7 +1590,7 @@ This user guide is an integral part of the project developed as part of the INFO
 ✅ **Complete professional documentation**  
 ✅ **Exhaustive testing and validation**  
 
-### 🚀 Potential Impact
+###  Potential Impact
 
 This project could serve as a foundation for:
 - HL7 training in other universities
@@ -1600,12 +1600,12 @@ This project could serve as a foundation for:
 
 ---
 
-**🎓 HL7 Messenger v1.0 - Complete User Guide**  
+** HL7 Messenger v1.0 - Complete User Guide**  
 *Developed with passion by the INFOH400 team*  
 *Université Libre de Bruxelles - May 2025*  
 
-**📞 Need help? Contact us via GitHub or email!**  
-**🌟 Feel free to contribute to the project and help it evolve!**  
+** Need help? Contact us via GitHub or email!**  
+** Feel free to contribute to the project and help it evolve!**  
 
 *End of user guide - Thank you for choosing HL7 Messenger! ✨*  
 *© 2025 - INFOH400 Team - Université Libre de Bruxelles*  

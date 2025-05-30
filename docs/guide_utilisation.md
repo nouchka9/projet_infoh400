@@ -1,79 +1,79 @@
-# 📖 Guide d'utilisation complet - HL7 Messenger v1.0
+# 📖 Complete User Guide - HL7 Messenger v1.0
 
-## 🏥 Présentation du système
+## 🏥 System Overview
 
-**HL7 Messenger** est une solution complète de messagerie hospitalière développée pour faciliter la communication standardisée entre les départements hospitaliers. Cette application production-ready implémente le standard HL7 v2.5 avec le protocole de transport MLLP pour assurer des échanges sécurisés et fiables.
+**HL7 Messenger** is a comprehensive hospital messaging solution developed to facilitate standardized communication between hospital departments. This production-ready application implements the HL7 v2.5 standard with the MLLP transport protocol to ensure secure and reliable exchanges.
 
-### 🎯 **Objectifs du système**
-- **Standardisation** : Communication HL7 v2.5 conforme aux standards internationaux
-- **Interopérabilité** : Échanges fluides entre départements hospitaliers
-- **Fiabilité** : Architecture robuste avec gestion d'erreurs complète
-- **Simplicité** : Interface intuitive pour utilisateurs non-techniques
-- **Traçabilité** : Historique complet des messages et patients
+### 🎯 **System Objectives**
+- **Standardization**: HL7 v2.5 communication compliant with international standards
+- **Interoperability**: Seamless exchanges between hospital departments
+- **Reliability**: Robust architecture with complete error handling
+- **Simplicity**: Intuitive interface for non-technical users
+- **Traceability**: Complete history of messages and patients
 
-### 🏥 **Départements supportés**
-- **🏥 Admission** : Enregistrement et gestion des patients
-- **🔬 Laboratoire** : Transmission des résultats d'analyses
-- **📡 Radiologie** : Commandes d'examens et résultats d'imagerie
-- **💊 Pharmacie** : Gestion des prescriptions médicamenteuses
+### 🏥 **Supported Departments**
+- **🏥 Admission**: Patient registration and management
+- **🔬 Laboratory**: Transmission of analysis results
+- **📡 Radiology**: Examination orders and imaging results
+- **💊 Pharmacy**: Prescription management
 
 ---
 
-## 🚀 Installation et configuration
+## 🚀 Installation and Configuration
 
-### 📋 **Prérequis système**
+### 📋 **System Requirements**
 
-#### Configuration minimale
-- **Système d'exploitation** : Windows 10+, macOS 10.14+, Linux Ubuntu 18.04+
-- **Python** : Version 3.8 ou supérieure
-- **RAM** : 4 GB minimum, 8 GB recommandé
-- **Espace disque** : 500 MB disponibles
-- **Réseau** : Ports TCP 2575-2579 disponibles
+#### Minimum Configuration
+- **Operating System**: Windows 10+, macOS 10.14+, Linux Ubuntu 18.04+
+- **Python**: Version 3.8 or higher
+- **RAM**: 4 GB minimum, 8 GB recommended
+- **Disk Space**: 500 MB available
+- **Network**: TCP ports 2575-2579 available
 
-#### Vérification de l'environnement
+#### Environment Verification
 ```bash
-# Vérifier la version Python
+# Check Python version
 python --version
-# Doit afficher : Python 3.8.x ou supérieur
+# Should display: Python 3.8.x or higher
 
-# Vérifier pip
+# Check pip
 pip --version
 
-# Vérifier les ports disponibles (Linux/macOS)
+# Check available ports (Linux/macOS)
 netstat -an | grep 2575
-# Aucun résultat = port disponible
+# No result = port available
 ```
 
-### 📦 **Installation des dépendances**
+### 📦 **Dependency Installation**
 
-#### Installation standard
+#### Standard Installation
 ```bash
-# Naviguer vers le dossier du projet
+# Navigate to project folder
 cd hl7_messenger
 
-# Installer toutes les dépendances
+# Install all dependencies
 pip install -r requirements.txt
 
-# Vérifier l'installation
+# Verify installation
 python validate_fixes.py
 ```
 
-#### Dépendances principales
-- **hl7apy** : Bibliothèque HL7 officielle pour Python
-- **tkinter** : Interface graphique (inclus avec Python)
-- **threading** : Gestion multi-clients (standard Python)
-- **json** : Persistance des données (standard Python)
-- **socket** : Communication réseau (standard Python)
+#### Main Dependencies
+- **hl7apy**: Official HL7 library for Python
+- **tkinter**: Graphical interface (included with Python)
+- **threading**: Multi-client management (standard Python)
+- **json**: Data persistence (standard Python)
+- **socket**: Network communication (standard Python)
 
-### ⚙️ **Configuration du système**
+### ⚙️ **System Configuration**
 
-#### Configuration réseau (`app/config.py`)
+#### Network Configuration (`app/config.py`)
 ```python
-# Configuration serveur principal
-MLLP_SERVER_HOST = "0.0.0.0"      # Écoute sur toutes les interfaces
-MLLP_SERVER_PORT = 2575            # Port principal HL7
+# Main server configuration
+MLLP_SERVER_HOST = "0.0.0.0"      # Listen on all interfaces
+MLLP_SERVER_PORT = 2575            # Main HL7 port
 
-# Destinations par département
+# Destinations by department
 DESTINATIONS = {
     "ADMISSION_SYSTEM": {"host": "localhost", "port": 2575},
     "LAB_SYSTEM": {"host": "localhost", "port": 2575},
@@ -81,15 +81,15 @@ DESTINATIONS = {
     "PHARMACY_SYSTEM": {"host": "localhost", "port": 2575}
 }
 
-# Paramètres de communication
-TIMEOUT = 30                       # Timeout réseau en secondes
-MAX_MESSAGE_SIZE = 1048576         # Taille maximale message (1MB)
-BUFFER_SIZE = 4096                 # Taille buffer de réception
+# Communication parameters
+TIMEOUT = 30                       # Network timeout in seconds
+MAX_MESSAGE_SIZE = 1048576         # Maximum message size (1MB)
+BUFFER_SIZE = 4096                 # Reception buffer size
 ```
 
-#### Configuration authentification (`app/utils/security.py`)
+#### Authentication Configuration (`app/utils/security.py`)
 ```python
-# Comptes utilisateurs par défaut
+# Default user accounts
 DEFAULT_USERS = {
     "admin": {"password": "password", "role": "administrator"},
     "anouchka": {"password": "libre", "role": "admission"},
@@ -101,158 +101,158 @@ DEFAULT_USERS = {
 
 ---
 
-## 🎮 Démarrage du système
+## 🎮 System Startup
 
-### 🖥️ **Méthodes de lancement**
+### 🖥️ **Launch Methods**
 
-#### Méthode 1 : Démarrage rapide (Recommandée)
+#### Method 1: Quick Start (Recommended)
 ```bash
-# Terminal 1 : Serveur HL7 (obligatoire)
+# Terminal 1: HL7 Server (mandatory)
 python app/network/mllp_server.py
 
-# Terminal 2 : Interface utilisateur
+# Terminal 2: User Interface
 python run_app.py
 ```
 
-#### Méthode 2 : Démarrage classique
+#### Method 2: Classic Startup
 ```bash
-# Terminal 1 : Serveur HL7
+# Terminal 1: HL7 Server
 python -m app.network.mllp_server
 
-# Terminal 2 : Application principale
+# Terminal 2: Main Application
 python app/main.py
 ```
 
-#### Méthode 3 : Démarrage avec validation
+#### Method 3: Startup with Validation
 ```bash
-# Validation complète puis lancement
+# Complete validation then launch
 python validate_fixes.py && python run_app.py
 ```
 
-### 🔍 **Vérification du démarrage**
+### 🔍 **Startup Verification**
 
-#### Serveur HL7 démarré correctement
+#### HL7 Server Started Correctly
 ```
-🏥 Serveur HL7 MLLP initialisé
-📍 Adresse: 0.0.0.0:2575
-📚 Base de données: ✅ Disponible
-🚀 Démarrage du serveur HL7...
-✅ Socket bindé sur 0.0.0.0:2575
+🏥 HL7 MLLP Server Initialized
+📍 Address: 0.0.0.0:2575
+📚 Database: ✅ Available
+🚀 Starting HL7 server...
+✅ Socket bound on 0.0.0.0:2575
 ===============================================
-🎉 SERVEUR HL7 DÉMARRÉ AVEC SUCCÈS!
-🌐 Écoute sur 0.0.0.0:2575
-⏰ Démarré le 29/05/2025 à 19:15:32
-📨 En attente de messages HL7...
+🎉 HL7 SERVER STARTED SUCCESSFULLY!
+🌐 Listening on 0.0.0.0:2575
+⏰ Started on 29/05/2025 at 19:15:32
+📨 Waiting for HL7 messages...
 ===============================================
 ```
 
-#### Application démarrée correctement
+#### Application Started Correctly
 ```
-🚀 Initialisation de HL7 Messenger...
-✅ Configuration chargée
-✅ Base de données initialisée
-✅ Interface utilisateur prête
-📱 Application démarrée avec succès
+🚀 Initializing HL7 Messenger...
+✅ Configuration loaded
+✅ Database initialized
+✅ User interface ready
+📱 Application started successfully
 ```
 
 ---
 
-## 🔐 Authentification et navigation
+## 🔐 Authentication and Navigation
 
-### 🚪 **Écran de connexion**
+### 🚪 **Login Screen**
 
-#### Interface de connexion
-L'écran de connexion présente trois champs principaux :
-- **👤 Nom d'utilisateur** : Identifiant de l'utilisateur
-- **🔒 Mot de passe** : Mot de passe associé
-- **🏥 Département** : Service hospitalier d'affectation
+#### Login Interface
+The login screen presents three main fields:
+- **👤 Username**: User identifier
+- **🔒 Password**: Associated password
+- **🏥 Department**: Hospital service assignment
 
-#### Comptes par défaut
-| Utilisateur | Mot de passe | Département | Rôle |
-|-------------|--------------|-------------|------|
-| `admin` | `password` | Tous | Administrateur |
-| `anouchka` | `libre` | ADMISSION | Responsable admissions |
-| `christelle` | `456` | LABORATORY | Technicien laboratoire |
-| `romeo` | `789` | RADIOLOGY | Manipulateur radio |
-| `calixta` | `abc` | PHARMACY | Pharmacien |
+#### Default Accounts
+| Username | Password | Department | Role |
+|----------|----------|------------|------|
+| `admin` | `password` | All | Administrator |
+| `anouchka` | `libre` | ADMISSION | Admission Manager |
+| `christelle` | `456` | LABORATORY | Lab Technician |
+| `romeo` | `789` | RADIOLOGY | Radiology Technician |
+| `calixta` | `abc` | PHARMACY | Pharmacist |
 
-#### Navigation clavier
-- **Tab** : Passer au champ suivant
-- **Shift+Tab** : Revenir au champ précédent
-- **Entrée** : Valider la connexion
-- **Échap** : Effacer tous les champs
+#### Keyboard Navigation
+- **Tab**: Move to next field
+- **Shift+Tab**: Return to previous field
+- **Enter**: Validate login
+- **Escape**: Clear all fields
 
-### 🏠 **Dashboard principal**
+### 🏠 **Main Dashboard**
 
-#### Vue d'ensemble
-Le tableau de bord central affiche :
-- **📊 Statistiques temps réel** : Nombre de messages envoyés/reçus
-- **🔗 État connexions** : Statut serveur et clients MLLP
-- **👥 Patients actifs** : Liste des derniers patients traités
-- **📈 Activité récente** : Historique des dernières actions
+#### Overview
+The central dashboard displays:
+- **📊 Real-time Statistics**: Number of messages sent/received
+- **🔗 Connection Status**: Server and MLLP client status
+- **👥 Active Patients**: List of recently processed patients
+- **📈 Recent Activity**: History of recent actions
 
-#### Fonctionnalités disponibles
-- **🏥 Accès départements** : Boutons pour chaque service
-- **📜 Historique complet** : Consultation des messages échangés
-- **⚙️ Configuration** : Paramètres système et réseau
-- **🔌 Test connexions** : Diagnostic des communications
-- **📊 Rapports** : Génération de statistiques d'utilisation
+#### Available Features
+- **🏥 Department Access**: Buttons for each service
+- **📜 Complete History**: Message exchange consultation
+- **⚙️ Configuration**: System and network settings
+- **🔌 Connection Testing**: Communication diagnostics
+- **📊 Reports**: Usage statistics generation
 
 ---
 
-## 🏥 Guide par département
+## 🏥 Department Guide
 
-### 🏥 **Module Admission**
+### 🏥 **Admission Module**
 
-#### Fonctionnalités principales
-Le module d'admission permet la gestion complète des patients entrants :
-- **Enregistrement nouveaux patients** avec validation complète
-- **Transferts inter-services** avec traçabilité
-- **Mises à jour dossiers** patients existants
-- **Sorties programmées** avec notifications
-- **Génération messages ADT** conformes HL7 v2.5
+#### Main Features
+The admission module enables complete management of incoming patients:
+- **New patient registration** with complete validation
+- **Inter-service transfers** with traceability
+- **Existing patient record updates**
+- **Scheduled discharges** with notifications
+- **ADT message generation** compliant with HL7 v2.5
 
-#### Interface utilisateur
+#### User Interface
 
-##### Formulaire patient (obligatoires marqués *)
+##### Patient Form (mandatory fields marked with *)
 ```
-📋 Informations Patient
+📋 Patient Information
 ┌─────────────────────────────────────────────────────────┐
-│ 🆔 ID Patient *     : [P12345    ] 👤 Nom *      : [DOE    ]│
-│ 👤 Prénom *         : [JOHN      ] 📅 Naissance  : [19800101]│
-│ ⚧ Sexe             : [M ▼]        🏢 Service    : [CARDIO  ]│
-│ 🛏️ Chambre          : [102       ] 👨‍⚕️ Médecin    : [Dr.MARTIN]│
-│ 📨 Type message    : [ADT^A01 - Admission ▼]              │
-│ 📝 Commentaires    : [Admission programmée              ] │
+│ 🆔 Patient ID *     : [P12345    ] 👤 Last Name * : [DOE    ]│
+│ 👤 First Name *     : [JOHN      ] 📅 Birth Date : [19800101]│
+│ ⚧ Gender           : [M ▼]        🏢 Service     : [CARDIO  ]│
+│ 🛏️ Room             : [102       ] 👨‍⚕️ Doctor      : [Dr.MARTIN]│
+│ 📨 Message Type    : [ADT^A01 - Admission ▼]              │
+│ 📝 Comments        : [Scheduled admission               ] │
 └─────────────────────────────────────────────────────────┘
-[🔄 Réinitialiser] [🚀 Envoyer Message] ✅ Prêt
+[🔄 Reset] [🚀 Send Message] ✅ Ready
 ```
 
-##### Types de messages ADT supportés
-- **ADT^A01** : Admission patient
-- **ADT^A02** : Transfert patient
-- **ADT^A03** : Sortie patient
-- **ADT^A04** : Inscription patient
-- **ADT^A08** : Mise à jour informations
+##### Supported ADT Message Types
+- **ADT^A01**: Patient admission
+- **ADT^A02**: Patient transfer
+- **ADT^A03**: Patient discharge
+- **ADT^A04**: Patient registration
+- **ADT^A08**: Information update
 
-##### Validation des données
-- **ID Patient** : Minimum 2 caractères, unique
-- **Nom/Prénom** : Minimum 2 caractères, format alphabétique
-- **Date naissance** : Format AAAAMMJJ (ex: 19800101)
-- **Sexe** : M (Masculin), F (Féminin), O (Autre), U (Inconnu)
-- **Service** : Code service hospitalier
-- **Chambre** : Numéro de chambre disponible
+##### Data Validation
+- **Patient ID**: Minimum 2 characters, unique
+- **Last/First Name**: Minimum 2 characters, alphabetic format
+- **Birth Date**: YYYYMMDD format (e.g., 19800101)
+- **Gender**: M (Male), F (Female), O (Other), U (Unknown)
+- **Service**: Hospital service code
+- **Room**: Available room number
 
-#### Workflow d'utilisation
-1. **Saisie informations** patient dans le formulaire
-2. **Validation temps réel** des champs obligatoires
-3. **Sélection type** de message ADT approprié
-4. **Ajout commentaires** si nécessaire
-5. **Envoi message** vers le système d'admission
-6. **Réception ACK** de confirmation
-7. **Sauvegarde automatique** du patient en base
+#### Usage Workflow
+1. **Enter patient information** in the form
+2. **Real-time validation** of mandatory fields
+3. **Select appropriate** ADT message type
+4. **Add comments** if necessary
+5. **Send message** to admission system
+6. **Receive ACK** confirmation
+7. **Automatic save** of patient to database
 
-#### Messages HL7 générés
+#### Generated HL7 Messages
 ```
 MSH|^~\&|HL7MESSENGER|HOSPITAL|ADT|HOSPITAL|20250529191532||ADT^A01|12345|P|2.5
 EVN||20250529191532
@@ -260,59 +260,59 @@ PID|1||P12345||DOE^JOHN||19800101|M
 PV1|1|I|CARDIO^102||||||||||||||20250529191532
 ```
 
-### 🔬 **Module Laboratoire**
+### 🔬 **Laboratory Module**
 
-#### Fonctionnalités principales
-Le module laboratoire gère la transmission des résultats d'analyses :
-- **Résultats biologiques** multi-paramètres
-- **Codes LOINC** standardisés
-- **Valeurs de référence** avec anomalies
-- **Commentaires techniques** détaillés
-- **Génération messages ORU** conformes HL7 v2.5
+#### Main Features
+The laboratory module manages transmission of analysis results:
+- **Multi-parameter biological results**
+- **Standardized LOINC codes**
+- **Reference values** with anomalies
+- **Detailed technical comments**
+- **ORU message generation** compliant with HL7 v2.5
 
-#### Interface utilisateur
+#### User Interface
 
-##### Formulaire résultats laboratoire
+##### Laboratory Results Form
 ```
-🔬 Résultats de Laboratoire
+🔬 Laboratory Results
 ┌─────────────────────────────────────────────────────────┐
-│ 👤 ID Patient *     : [P12345    ] 📋 ID Demande : [LAB001 ]│
-│ 🧪 Code Examen *    : [GLU       ] 📝 Nom Examen : [Glucose]│
-│ 📅 Date Examen     : [20250529  ] ⏰ Heure      : [14:30  ]│
+│ 👤 Patient ID *     : [P12345    ] 📋 Request ID : [LAB001 ]│
+│ 🧪 Exam Code *      : [GLU       ] 📝 Exam Name  : [Glucose]│
+│ 📅 Exam Date       : [20250529  ] ⏰ Time       : [14:30  ]│
 │                                                           │
-│ 📊 Résultat 1                                            │
-│ 🔬 Code Test       : [GLU       ] 📝 Nom Test   : [Glucose]│
-│ 📈 Valeur          : [95        ] 📏 Unité      : [mg/dL  ]│
-│ 📊 Référence       : [70-110    ] ⚠️ Anomalie   : [Normal ]│
+│ 📊 Result 1                                              │
+│ 🔬 Test Code       : [GLU       ] 📝 Test Name  : [Glucose]│
+│ 📈 Value           : [95        ] 📏 Unit       : [mg/dL  ]│
+│ 📊 Reference       : [70-110    ] ⚠️ Anomaly    : [Normal ]│
 │                                                           │
-│ 📊 Résultat 2 (optionnel)                               │
-│ 🔬 Code Test       : [HBA1C     ] 📝 Nom Test   : [HbA1c  ]│
-│ 📈 Valeur          : [5.8       ] 📏 Unité      : [%      ]│
-│ 📊 Référence       : [<6.5      ] ⚠️ Anomalie   : [Normal ]│
+│ 📊 Result 2 (optional)                                   │
+│ 🔬 Test Code       : [HBA1C     ] 📝 Test Name  : [HbA1c  ]│
+│ 📈 Value           : [5.8       ] 📏 Unit       : [%      ]│
+│ 📊 Reference       : [<6.5      ] ⚠️ Anomaly    : [Normal ]│
 │                                                           │
-│ 📝 Commentaires    : [Résultats dans les normes        ] │
+│ 📝 Comments        : [Results within normal range       ] │
 └─────────────────────────────────────────────────────────┘
-[🔄 Réinitialiser] [🚀 Envoyer Résultats] ✅ Prêt
+[🔄 Reset] [🚀 Send Results] ✅ Ready
 ```
 
-##### Codes d'anomalies
-- **N** : Normal (dans les limites)
-- **H** : Élevé (au-dessus de la normale)
-- **L** : Bas (en-dessous de la normale)
-- **HH** : Critique élevé
-- **LL** : Critique bas
-- **A** : Anormal (sans précision)
+##### Anomaly Codes
+- **N**: Normal (within limits)
+- **H**: High (above normal)
+- **L**: Low (below normal)
+- **HH**: Critically high
+- **LL**: Critically low
+- **A**: Abnormal (unspecified)
 
-#### Workflow d'utilisation
-1. **Réception demande** d'analyse du médecin
-2. **Réalisation examens** au laboratoire
-3. **Saisie résultats** dans l'interface
-4. **Validation biologique** par le technicien
-5. **Envoi résultats** au dossier patient
-6. **Notification médecin** prescripteur
-7. **Archivage résultats** en base
+#### Usage Workflow
+1. **Receive analysis request** from physician
+2. **Perform examinations** in laboratory
+3. **Enter results** in interface
+4. **Biological validation** by technician
+5. **Send results** to patient record
+6. **Notify prescribing** physician
+7. **Archive results** in database
 
-#### Messages HL7 générés
+#### Generated HL7 Messages
 ```
 MSH|^~\&|HL7MESSENGER|HOSPITAL|LAB|HOSPITAL|20250529143000||ORU^R01|LAB001|P|2.5
 PID|1||P12345
@@ -321,133 +321,133 @@ OBX|1|NM|GLU^Glucose|95|mg/dL|70-110|N||F||20250529143000
 OBX|2|NM|HBA1C^HbA1c|5.8|%|<6.5|N||F||20250529143000
 ```
 
-### 📡 **Module Radiologie**
+### 📡 **Radiology Module**
 
-#### Fonctionnalités principales
-Le module radiologie couvre deux aspects :
-- **Commandes d'examens** (ORM^O01) pour planification
-- **Résultats d'imagerie** (ORU^R01) avec comptes-rendus
-- **Gestion priorités** et urgences
-- **Suivi workflow** complet examen
+#### Main Features
+The radiology module covers two aspects:
+- **Examination orders** (ORM^O01) for planning
+- **Imaging results** (ORU^R01) with reports
+- **Priority management** and emergencies
+- **Complete examination workflow** tracking
 
-#### Interface commandes d'examens
+#### Examination Orders Interface
 ```
-📡 Commandes d'Examens Radiologiques
+📡 Radiology Examination Orders
 ┌─────────────────────────────────────────────────────────┐
-│ 👤 ID Patient *     : [P12345    ] 📋 ID Commande: [RX001 ]│
-│ 🔬 Code Examen *    : [CHEST     ] 📝 Nom Examen : [Radio thorax]│
-│ 📅 Date Programme   : [20250530  ] ⏰ Heure      : [09:00  ]│
-│ ⚡ Priorité         : [ROUTINE ▼] 📍 Localisation: [Salle 1]│
-│ 👨‍⚕️ Médecin Demandeur: [Dr.MARTIN ] 🎯 Indication : [Toux persistante]│
-│ 📝 Commentaires    : [Patient claustrophobe - prévoir sédation]│
+│ 👤 Patient ID *     : [P12345    ] 📋 Order ID   : [RX001 ]│
+│ 🔬 Exam Code *      : [CHEST     ] 📝 Exam Name  : [Chest X-ray]│
+│ 📅 Scheduled Date   : [20250530  ] ⏰ Time       : [09:00  ]│
+│ ⚡ Priority         : [ROUTINE ▼] 📍 Location    : [Room 1 ]│
+│ 👨‍⚕️ Ordering Doctor : [Dr.MARTIN ] 🎯 Indication : [Persistent cough]│
+│ 📝 Comments        : [Claustrophobic patient - consider sedation]│
 └─────────────────────────────────────────────────────────┘
-[🔄 Réinitialiser] [🚀 Programmer Examen] ✅ Prêt
+[🔄 Reset] [🚀 Schedule Exam] ✅ Ready
 ```
 
-#### Interface résultats d'examens
+#### Examination Results Interface
 ```
-📡 Résultats d'Examens Radiologiques
+📡 Radiology Examination Results
 ┌─────────────────────────────────────────────────────────┐
-│ 👤 ID Patient *     : [P12345    ] 📋 ID Examen  : [RX001 ]│
-│ 🔬 Code Examen *    : [CHEST     ] 📝 Nom Examen : [Radio thorax]│
-│ 📅 Date Réalisation : [20250530  ] ⏰ Heure      : [09:15  ]│
-│ 👨‍⚕️ Radiologue      : [Dr.DUPONT ] 📊 Statut     : [FINAL ▼]│
+│ 👤 Patient ID *     : [P12345    ] 📋 Exam ID    : [RX001 ]│
+│ 🔬 Exam Code *      : [CHEST     ] 📝 Exam Name  : [Chest X-ray]│
+│ 📅 Performed Date   : [20250530  ] ⏰ Time       : [09:15  ]│
+│ 👨‍⚕️ Radiologist     : [Dr.DUPONT ] 📊 Status     : [FINAL ▼]│
 │                                                           │
-│ 📋 Compte-rendu                                          │
+│ 📋 Report                                                │
 │ ┌─────────────────────────────────────────────────────┐ │
-│ │ TECHNIQUE :                                         │ │
-│ │ Radiographie thoracique de face et profil          │ │
+│ │ TECHNIQUE:                                          │ │
+│ │ Frontal and lateral chest radiography              │ │
 │ │                                                     │ │
-│ │ RESULTATS :                                         │ │
-│ │ - Poumons bien déployés                            │ │
-│ │ - Pas d'opacité parenchymateuse                    │ │
-│ │ - Silhouette cardiaque normale                     │ │
-│ │ - Coupoles diaphragmatiques libres                 │ │
+│ │ RESULTS:                                            │ │
+│ │ - Well-expanded lungs                               │ │
+│ │ - No parenchymal opacity                           │ │
+│ │ - Normal cardiac silhouette                        │ │
+│ │ - Free diaphragmatic domes                         │ │
 │ │                                                     │ │
-│ │ CONCLUSION :                                        │ │
-│ │ Examen thoracique normal                           │ │
+│ │ CONCLUSION:                                         │ │
+│ │ Normal chest examination                           │ │
 │ └─────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────┘
-[🔄 Réinitialiser] [🚀 Envoyer Résultats] ✅ Prêt
+[🔄 Reset] [🚀 Send Results] ✅ Ready
 ```
 
-#### Types d'examens supportés
-- **CHEST** : Radiographie thoracique
-- **ABDO** : Radiographie abdominale
-- **SKULL** : Radiographie crâne
-- **ECHO** : Échographie
-- **SCAN** : Scanner
-- **IRM** : Imagerie par résonance magnétique
-- **MAMMO** : Mammographie
+#### Supported Examination Types
+- **CHEST**: Chest radiography
+- **ABDO**: Abdominal radiography
+- **SKULL**: Skull radiography
+- **ECHO**: Ultrasound
+- **SCAN**: CT scan
+- **MRI**: Magnetic resonance imaging
+- **MAMMO**: Mammography
 
-#### Workflow d'utilisation
-1. **Réception prescription** médicale
-2. **Programmation examen** avec créneaux
-3. **Préparation patient** si nécessaire
-4. **Réalisation examen** par manipulateur
-5. **Interprétation images** par radiologue
-6. **Rédaction compte-rendu** détaillé
-7. **Validation finale** et envoi résultats
+#### Usage Workflow
+1. **Receive medical** prescription
+2. **Schedule examination** with time slots
+3. **Patient preparation** if necessary
+4. **Perform examination** by technician
+5. **Image interpretation** by radiologist
+6. **Write detailed** report
+7. **Final validation** and send results
 
-### 💊 **Module Pharmacie**
+### 💊 **Pharmacy Module**
 
-#### Fonctionnalités principales
-Le module pharmacie gère les prescriptions médicamenteuses :
-- **Prescriptions multi-médicaments** (jusqu'à 2 par ordonnance)
-- **Posologies détaillées** avec fréquences
-- **Vérification interactions** médicamenteuses
-- **Instructions spéciales** pour le patient
-- **Génération messages ORM** pour dispensation
+#### Main Features
+The pharmacy module manages medication prescriptions:
+- **Multi-medication prescriptions** (up to 2 per prescription)
+- **Detailed dosages** with frequencies
+- **Drug interaction** verification
+- **Special instructions** for patient
+- **ORM message generation** for dispensing
 
-#### Interface utilisateur
+#### User Interface
 ```
-💊 Prescriptions Médicamenteuses
+💊 Medication Prescriptions
 ┌─────────────────────────────────────────────────────────┐
-│ 👤 ID Patient *     : [P12345    ] 📋 ID Prescription: [RX001]│
-│ 👨‍⚕️ Médecin *       : [Dr.MARTIN ] 📅 Date Prescription: [20250529]│
+│ 👤 Patient ID *     : [P12345    ] 📋 Prescription ID: [RX001]│
+│ 👨‍⚕️ Doctor *        : [Dr.MARTIN ] 📅 Prescription Date: [20250529]│
 │                                                           │
-│ 💊 Médicament 1                                          │
-│ 🔢 Code Médicament  : [PARA500   ] 📝 Nom Commercial: [Doliprane]│
-│ 💉 Dosage          : [500mg     ] 📊 Forme         : [Comprimé▼]│
-│ ⏰ Posologie        : [1 cp x 3/j] 🔄 Durée        : [7 jours ]│
-│ 📝 Instructions    : [À prendre pendant les repas]       │
+│ 💊 Medication 1                                          │
+│ 🔢 Drug Code        : [PARA500   ] 📝 Brand Name : [Doliprane]│
+│ 💉 Dosage          : [500mg     ] 📊 Form       : [Tablet ▼]│
+│ ⏰ Dosing          : [1 tab x 3/d] 🔄 Duration   : [7 days ]│
+│ 📝 Instructions    : [Take with meals]                   │
 │                                                           │
-│ 💊 Médicament 2 (optionnel)                             │
-│ 🔢 Code Médicament  : [AMOX1000  ] 📝 Nom Commercial: [Clamoxyl]│
-│ 💉 Dosage          : [1000mg    ] 📊 Forme         : [Comprimé▼]│
-│ ⏰ Posologie        : [1 cp x 2/j] 🔄 Durée        : [10 jours]│
-│ 📝 Instructions    : [Traitement à terminer complètement]│
+│ 💊 Medication 2 (optional)                               │
+│ 🔢 Drug Code        : [AMOX1000  ] 📝 Brand Name : [Amoxicillin]│
+│ 💉 Dosage          : [1000mg    ] 📊 Form       : [Tablet ▼]│
+│ ⏰ Dosing          : [1 tab x 2/d] 🔄 Duration   : [10 days]│
+│ 📝 Instructions    : [Complete full course of treatment] │
 │                                                           │
-│ 📝 Commentaires    : [Vérifier allergie pénicilline]    │
+│ 📝 Comments        : [Check penicillin allergy]         │
 └─────────────────────────────────────────────────────────┘
-[🔄 Réinitialiser] [🚀 Envoyer Prescription] ✅ Prêt
+[🔄 Reset] [🚀 Send Prescription] ✅ Ready
 ```
 
-#### Formes pharmaceutiques
-- **Comprimé** : Forme solide standard
-- **Gélule** : Forme encapsulée
-- **Sirop** : Forme liquide orale
-- **Solution** : Forme liquide injectable
-- **Pommade** : Forme topique
-- **Suppositoire** : Forme rectale
-- **Patch** : Forme transdermique
+#### Pharmaceutical Forms
+- **Tablet**: Standard solid form
+- **Capsule**: Encapsulated form
+- **Syrup**: Oral liquid form
+- **Solution**: Injectable liquid form
+- **Ointment**: Topical form
+- **Suppository**: Rectal form
+- **Patch**: Transdermal form
 
-#### Workflow d'utilisation
-1. **Réception prescription** médicale
-2. **Vérification disponibilité** médicaments
-3. **Contrôle interactions** et contre-indications
-4. **Préparation pilulier** si nécessaire
-5. **Étiquetage posologie** détaillée
-6. **Dispensation patient** avec conseils
-7. **Suivi observance** si traitement au long cours
+#### Usage Workflow
+1. **Receive medical** prescription
+2. **Check medication** availability
+3. **Control interactions** and contraindications
+4. **Prepare pill organizer** if necessary
+5. **Label detailed** dosing
+6. **Dispense to patient** with counseling
+7. **Follow adherence** for long-term treatment
 
 ---
 
-## 📊 Gestion des données et historique
+## 📊 Data Management and History
 
-### 💾 **Base de données patients**
+### 💾 **Patient Database**
 
-#### Structure des données patient
+#### Patient Data Structure
 ```json
 {
     "id": "P12345",
@@ -465,13 +465,13 @@ Le module pharmacie gère les prescriptions médicamenteuses :
     },
     "contact_info": {
         "phone": "+32123456789",
-        "address": "123 Rue de la Santé, 1000 Bruxelles",
-        "emergency_contact": "Jane DOE - Épouse"
+        "address": "123 Health Street, 1000 Brussels",
+        "emergency_contact": "Jane DOE - Wife"
     },
     "medical_info": {
-        "allergies": ["Pénicilline"],
-        "medical_history": ["Hypertension", "Diabète type 2"],
-        "current_medications": ["Metformine 850mg", "Amlodipine 5mg"]
+        "allergies": ["Penicillin"],
+        "medical_history": ["Hypertension", "Type 2 Diabetes"],
+        "current_medications": ["Metformin 850mg", "Amlodipine 5mg"]
     },
     "metadata": {
         "created_date": "20250529191532",
@@ -482,15 +482,15 @@ Le module pharmacie gère les prescriptions médicamenteuses :
 }
 ```
 
-#### Fichier de stockage
-- **Localisation** : `resources/patients.json`
-- **Format** : JSON structuré avec validation automatique
-- **Sauvegarde** : Automatique après chaque modification
-- **Backup** : Copies horodatées dans `backup_*/`
+#### Storage File
+- **Location**: `resources/patients.json`
+- **Format**: Structured JSON with automatic validation
+- **Backup**: Automatic after each modification
+- **Backup**: Timestamped copies in `backup_*/`
 
-### 📨 **Historique des messages**
+### 📨 **Message History**
 
-#### Structure des messages HL7
+#### HL7 Message Structure
 ```json
 {
     "id": "msg_12345678-1234-5678-9abc-123456789abc",
@@ -521,259 +521,297 @@ Le module pharmacie gère les prescriptions médicamenteuses :
     "acknowledgment": {
         "ack_received": true,
         "ack_code": "AA",
-        "ack_message": "Message traité avec succès",
+        "ack_message": "Message processed successfully",
         "ack_timestamp": "20250529191533"
     }
 }
 ```
 
-### 📈 **Interface historique**
+### 📈 **History Interface**
 
-#### Fonctionnalités de consultation
+#### Consultation Features
 ```
-📜 Historique des Messages HL7
+📜 HL7 Message History
 ┌─────────────────────────────────────────────────────────┐
-│ 🔍 Filtres                                              │
-│ 📅 Du: [29/05/2025] Au: [29/05/2025] 📨 Type: [Tous ▼]│
-│ 👤 Patient: [Tous     ] 🏥 Département: [Tous      ▼] │
-│ 📊 Statut: [Tous     ▼] 🔄 [Appliquer Filtres]        │
+│ 🔍 Filters                                              │
+│ 📅 From: [29/05/2025] To: [29/05/2025] 📨 Type: [All ▼]│
+│ 👤 Patient: [All     ] 🏥 Department: [All       ▼] │
+│ 📊 Status: [All     ▼] 🔄 [Apply Filters]             │
 │                                                         │
-│ 📋 Messages (25 résultats)                             │
+│ 📋 Messages (25 results)                               │
 │ ┌─────────────────────────────────────────────────────┐ │
-│ │19:15:32│ADT^A01│P12345│DOE JOHN    │✅ Envoyé      │ │
-│ │19:12:15│ORU^R01│P12344│SMITH JANE  │✅ Envoyé      │ │
-│ │19:08:45│ORM^O01│P12343│MARTIN PAUL │❌ Erreur      │ │
-│ │19:05:22│ADT^A02│P12342│BROWN MARY  │✅ Envoyé      │ │
-│ │18:58:11│ORU^R01│P12341│WILSON TOM  │✅ Envoyé      │ │
+│ │19:15:32│ADT^A01│P12345│DOE JOHN    │✅ Sent        │ │
+│ │19:12:15│ORU^R01│P12344│SMITH JANE  │✅ Sent        │ │
+│ │19:08:45│ORM^O01│P12343│MARTIN PAUL │❌ Error       │ │
+│ │19:05:22│ADT^A02│P12342│BROWN MARY  │✅ Sent        │ │
+│ │18:58:11│ORU^R01│P12341│WILSON TOM  │✅ Sent        │ │
 │ └─────────────────────────────────────────────────────┘ │
 │                                                         │
-│ [📄 Exporter CSV] [🔍 Détails] [🔄 Actualiser]        │
+│ [📄 Export CSV] [🔍 Details] [🔄 Refresh]             │
 └─────────────────────────────────────────────────────────┘
 ```
 
-#### Options d'export
-- **CSV** : Fichier Excel pour analyse
-- **PDF** : Rapport formaté pour impression
-- **JSON** : Données brutes pour intégration
-- **HL7** : Messages bruts pour debug
+#### Export Options
+- **CSV**: Excel file for analysis
+- **PDF**: Formatted report for printing
+- **JSON**: Raw data for integration
+- **HL7**: Raw messages for debugging
 
 ---
 
-## 🌐 Communication réseau et protocoles
+## 🌐 Network Communication and Protocols
 
-### 📡 **Architecture réseau**
+### 📡 **Network Architecture**
 
-#### Schéma de communication
+#### Communication Schema
 ```
 ┌─────────────────┐    MLLP/TCP     ┌─────────────────┐
-│  Interface UI   │ ─────────────► │  Serveur HL7    │
-│  (Départements) │                │  (Port 2575)    │
+│  UI Interface   │ ─────────────► │  HL7 Server     │
+│  (Departments)  │                │  (Port 2575)    │
 └─────────────────┘                └─────────────────┘
         │                                    │
         ▼                                    ▼
 ┌─────────────────┐                ┌─────────────────┐
-│  Client MLLP    │                │ Réception MLLP  │
-│  (Envoi)        │                │ (Multi-client)  │
+│  MLLP Client    │                │ MLLP Reception  │
+│  (Send)         │                │ (Multi-client)  │
 └─────────────────┘                └─────────────────┘
         │                                    │
         ▼                                    ▼
 ┌─────────────────┐                ┌─────────────────┐
-│ Message HL7     │◄──── ACK ──────│  Parser HL7     │
+│ HL7 Message     │◄──── ACK ──────│  HL7 Parser     │
 │ (ADT/ORU/ORM)   │                │  (Validation)   │
 └─────────────────┘                └─────────────────┘
                                             │
                                             ▼
                                   ┌─────────────────┐
-                                  │ Base de données │
+                                  │ Database        │
                                   │ (JSON Storage)  │
                                   └─────────────────┘
 ```
 
-### 🔌 **Protocole MLLP**
+### 🔌 **MLLP Protocol**
 
-#### Structure des messages MLLP
+#### MLLP Message Structure
 ```
-[SB] + [Message HL7] + [EB] + [CR]
+[SB] + [HL7 Message] + [EB] + [CR]
  ↓         ↓           ↓       ↓
-0x0B   Contenu HL7   0x1C    0x0D
+0x0B   HL7 Content   0x1C    0x0D
 ```
 
-#### Exemple complet
+#### Complete Example
 ```
-Hexadécimal : 0B 4D 53 48 7C ... 1C 0D
-ASCII       : [SB]MSH|^~\&|HL7MESSENGER|...[EB][CR]
+Hexadecimal: 0B 4D 53 48 7C ... 1C 0D
+ASCII      : [SB]MSH|^~\&|HL7MESSENGER|...[EB][CR]
 ```
 
-#### Gestion des ACK
+#### ACK Management
 ```python
-# ACK de succès
+# Success ACK
 MSH|^~\&|HL7_SERVER|HOSPITAL|HL7_CLIENT|HOSPITAL|20250529191533||ACK^ADT^A01|12345|P|2.5
-MSA|AA|12345|Message traité avec succès
+MSA|AA|12345|Message processed successfully
 
-# ACK d'erreur applicative  
+# Application error ACK  
 MSH|^~\&|HL7_SERVER|HOSPITAL|HL7_CLIENT|HOSPITAL|20250529191533||ACK|12345|P|2.5
-MSA|AE|12345|Erreur: Patient inexistant
+MSA|AE|12345|Error: Patient does not exist
 
-# ACK de rejet
+# Rejection ACK
 MSH|^~\&|HL7_SERVER|HOSPITAL|HL7_CLIENT|HOSPITAL|20250529191533||ACK|12345|P|2.5
-MSA|AR|12345|Message rejeté: Format invalide
+MSA|AR|12345|Message rejected: Invalid format
 ```
 
-### 🔍 **Test rapide du système**
+### 🔍 **Quick System Test**
 
-#### Connexion et test basique
-1. **Démarrer le serveur** : `python app/network/mllp_server.py`
-2. **Lancer l'application** : `python run_app.py`
-3. **Se connecter** : 
-   - Utilisateur : `anouchka`
-   - Mot de passe : `libre`
-   - Département : `ADMISSION`
-4. **Tester l'envoi** d'un message ADT^A01
-5. **Vérifier la réception** dans les logs du serveur
-6. **Confirmer le stockage** du patient en base
+#### Connection and Basic Test
+1. **Start server**: `python app/network/mllp_server.py`
+2. **Launch application**: `python run_app.py`
+3. **Connect**: 
+   - Username: `anouchka`
+   - Password: `libre`
+   - Department: `ADMISSION`
+4. **Test sending** an ADT^A01 message
+5. **Verify reception** in server logs
+6. **Confirm storage** of patient in database
 
-#### Données de test prêtes à l'emploi
-Les formulaires sont pré-remplis avec des données de test valides :
-- **Patient** : P12345 - DOE JOHN
-- **Service** : CARDIO, Chambre 102
-- **Médecin** : Dr. MARTIN
-- **Date** : Automatiquement aujourd'hui
+#### Ready-to-use Test Data
+Forms are pre-filled with valid test data:
+- **Patient**: P12345 - DOE JOHN
+- **Service**: CARDIO, Room 102
+- **Doctor**: Dr. MARTIN
+- **Date**: Automatically today
 
-🔧 Configuration avancée
-Paramètres de performance
-python# Configuration optimisée pour production (config.py)
+## 🔧 Advanced Configuration
+
+### Performance Parameters
+```python
+# Production-optimized configuration (config.py)
 PERFORMANCE_SETTINGS = {
-    "max_concurrent_clients": 50,      # Nombre max clients simultanés
-    "thread_pool_size": 10,            # Pool de threads serveur
-    "message_queue_size": 100,         # Taille queue messages
-    "connection_timeout": 30,          # Timeout connexion (sec)
-    "keep_alive_interval": 60,         # Intervalle keep-alive (sec)
-    "max_message_size": 1048576,       # Taille max message (1MB)
-    "buffer_size": 8192,               # Taille buffer réseau
-    "enable_compression": False,        # Compression messages (futur)
-    "log_level": "INFO"                # Niveau de logging
+    "max_concurrent_clients": 50,      # Max simultaneous clients
+    "thread_pool_size": 10,            # Server thread pool
+    "message_queue_size": 100,         # Message queue size
+    "connection_timeout": 30,          # Connection timeout (sec)
+    "keep_alive_interval": 60,         # Keep-alive interval (sec)
+    "max_message_size": 1048576,       # Max message size (1MB)
+    "buffer_size": 8192,               # Network buffer size
+    "enable_compression": False,        # Message compression (future)
+    "log_level": "INFO"                # Logging level
 }
-Configuration multi-sites
-python# Support sites distants (config_multisite.py)
+```
+
+### Multi-site Configuration
+```python
+# Remote site support (config_multisite.py)
 REMOTE_SITES = {
-    "site_central": {
+    "central_site": {
         "host": "10.1.1.100",
         "port": 2575,
-        "description": "Hôpital Central"
+        "description": "Central Hospital"
     },
-    "site_urgences": {
+    "emergency_site": {
         "host": "10.1.2.100", 
         "port": 2575,
-        "description": "Service Urgences"
+        "description": "Emergency Service"
     },
-    "site_pediatrie": {
+    "pediatric_site": {
         "host": "10.1.3.100",
         "port": 2575,
-        "description": "Hôpital Pédiatrique"
+        "description": "Pediatric Hospital"
     }
 }
+```
 
-🔍 Diagnostic et dépannage
-🚨 Problèmes courants et solutions
-Problème 1 : Serveur ne démarre pas
-Symptômes :
-❌ Erreur: Le port 2575 est déjà utilisé
+## 🔍 Diagnostics and Troubleshooting
+
+### 🚨 Common Problems and Solutions
+
+#### Problem 1: Server Won't Start
+**Symptoms:**
+```
+❌ Error: Port 2575 already in use
 OSError: [Errno 48] Address already in use
-Solutions :
-bash# Vérifier les processus utilisant le port
+```
+
+**Solutions:**
+```bash
+# Check processes using the port
 lsof -i :2575
 netstat -an | grep 2575
 
-# Tuer le processus utilisant le port
+# Kill process using the port
 sudo kill -9 [PID]
 
-# Ou utiliser un autre port
+# Or use another port
 python app/network/mllp_server.py 2580
-Problème 2 : Client ne peut pas se connecter
-Symptômes :
-❌ Connexion refusée par localhost:2575
+```
+
+#### Problem 2: Client Cannot Connect
+**Symptoms:**
+```
+❌ Connection refused by localhost:2575
 ConnectionRefusedError: Connection refused
-Solutions :
+```
 
-Vérifier que le serveur est démarré
-bashps aux | grep mllp_server
+**Solutions:**
+1. Verify server is started
+```bash
+ps aux | grep mllp_server
+```
 
-Tester la connectivité
-bashtelnet localhost 2575
-# Doit afficher : Connected to localhost
+2. Test connectivity
+```bash
+telnet localhost 2575
+# Should display: Connected to localhost
+```
 
-Vérifier les logs serveur
-bashtail -f logs/hl7_messenger.log
+3. Check server logs
+```bash
+tail -f logs/hl7_messenger.log
+```
 
+#### Problem 3: Messages Not Received
+**Symptoms:**
+- Interface shows "✅ Send successful"
+- But no message in server logs
 
-Problème 3 : Messages non reçus
-Symptômes :
-
-Interface affiche "✅ Envoi réussi"
-Mais aucun message dans les logs serveur
-
-Diagnostic :
-bash# Vérifier la configuration des destinations
+**Diagnosis:**
+```bash
+# Check destination configuration
 grep -n "DESTINATIONS" app/config.py
 
-# Vérifier les ports d'écoute
+# Check listening ports
 netstat -tulpn | grep 2575
-Solutions :
+```
 
-Aligner les ports client/serveur
-python# Dans mllp_client.py - tous vers 2575
+**Solutions:**
+1. Align client/server ports
+```python
+# In mllp_client.py - all to 2575
 self.default_hosts = {
     "ADMISSION_SYSTEM": {"host": "localhost", "port": 2575},
     "LAB_SYSTEM": {"host": "localhost", "port": 2575},
     # ...
 }
+```
 
-Redémarrer le serveur avec logging verbose
-bashpython app/network/mllp_server.py --verbose
+2. Restart server with verbose logging
+```bash
+python app/network/mllp_server.py --verbose
+```
 
-
-Problème 4 : Interface se ferme inopinément
-Symptômes (spécifique macOS) :
+#### Problem 4: Interface Closes Unexpectedly
+**Symptoms (macOS specific):**
+```
 objc[12345]: autorelease pool page corrupted
 Application terminated unexpectedly
-Solutions :
-bash# Utiliser le lanceur stable
+```
+
+**Solutions:**
+```bash
+# Use stable launcher
 python run_app.py
 
-# Ou définir les variables d'environnement
+# Or define environment variables
 export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 export MALLOC_NANO_ZONE=0
 python app/main.py
-Problème 5 : Données patients non sauvegardées
-Symptômes :
+```
 
-Messages envoyés avec succès
-Fichier patients.json vide ou non mis à jour
+#### Problem 5: Patient Data Not Saved
+**Symptoms:**
+- Messages sent successfully
+- patients.json file empty or not updated
 
-Diagnostic :
-bash# Vérifier les permissions du fichier
+**Diagnosis:**
+```bash
+# Check file permissions
 ls -la resources/patients.json
 
-# Vérifier l'espace disque
+# Check disk space
 df -h .
 
-# Vérifier les logs d'erreur
+# Check error logs
 grep -i "error.*patient" logs/hl7_messenger.log
-Solutions :
-bash# Corriger les permissions
+```
+
+**Solutions:**
+```bash
+# Fix permissions
 chmod 666 resources/patients.json
 
-# Créer le fichier s'il n'existe pas
+# Create file if it doesn't exist
 echo "[]" > resources/patients.json
 
-# Redémarrer avec droits appropriés
+# Restart with appropriate rights
 python app/network/mllp_server.py
-🛠️ Outils de diagnostic
-Script de diagnostic automatique
-bash# Créer et exécuter diagnostic.py
+```
+
+## 🛠️ Diagnostic Tools
+
+### Automatic Diagnostic Script
+```bash
+# Create and run diagnostic.py
 cat > diagnostic.py << 'EOF'
 #!/usr/bin/env python3
-"""Script de diagnostic HL7 Messenger"""
+"""HL7 Messenger Diagnostic Script"""
 
 import socket
 import os
@@ -792,7 +830,7 @@ def check_dependencies():
         print(f"✅ hl7apy {hl7apy.__version__}")
         return True
     except ImportError:
-        print("❌ hl7apy non installé")
+        print("❌ hl7apy not installed")
         return False
 
 def check_ports_available():
@@ -803,9 +841,9 @@ def check_ports_available():
         result = sock.connect_ex(('localhost', port))
         if result != 0:
             available.append(port)
-            print(f"✅ Port {port} disponible")
+            print(f"✅ Port {port} available")
         else:
-            print(f"❌ Port {port} occupé")
+            print(f"❌ Port {port} occupied")
         sock.close()
     return len(available) >= 1
 
@@ -823,19 +861,19 @@ def check_files_structure():
         if os.path.exists(file):
             print(f"✅ {file}")
         else:
-            print(f"❌ {file} manquant")
+            print(f"❌ {file} missing")
             all_present = False
     return all_present
 
 def main():
-    print("🔍 DIAGNOSTIC HL7 MESSENGER")
+    print("🔍 HL7 MESSENGER DIAGNOSTICS")
     print("=" * 40)
     
     checks = [
-        ("Version Python", check_python_version),
-        ("Dépendances", check_dependencies), 
-        ("Ports réseau", check_ports_available),
-        ("Structure fichiers", check_files_structure)
+        ("Python Version", check_python_version),
+        ("Dependencies", check_dependencies), 
+        ("Network Ports", check_ports_available),
+        ("File Structure", check_files_structure)
     ]
     
     results = []
@@ -845,31 +883,38 @@ def main():
     
     print("\n" + "=" * 40)
     if all(results):
-        print("🎉 SYSTÈME PRÊT - Tous les tests passés!")
-        print("💡 Vous pouvez démarrer l'application")
+        print("🎉 SYSTEM READY - All tests passed!")
+        print("💡 You can start the application")
     else:
-        print("⚠️ PROBLÈMES DÉTECTÉS - Voir les erreurs ci-dessus")
-        print("📚 Consultez le guide de dépannage")
+        print("⚠️ PROBLEMS DETECTED - See errors above")
+        print("📚 Consult troubleshooting guide")
 
 if __name__ == "__main__":
     main()
 EOF
 
 python diagnostic.py
-Monitoring en temps réel
-bash# Surveiller les logs en temps réel
+```
+
+### Real-time Monitoring
+```bash
+# Monitor logs in real-time
 tail -f logs/hl7_messenger.log | grep -E "(ERROR|WARNING|INFO)"
 
-# Surveiller les connexions réseau
+# Monitor network connections
 watch -n 2 "netstat -an | grep 2575"
 
-# Surveiller les processus HL7
+# Monitor HL7 processes
 watch -n 5 "ps aux | grep -E '(mllp|hl7)'"
+```
 
-📊 Administration et maintenance
-🗄️ Gestion de la base de données
-Sauvegarde automatique
-python# Script de sauvegarde (backup_database.py)
+## 📊 Administration and Maintenance
+
+### 🗄️ Database Management
+
+#### Automatic Backup
+```python
+# Backup script (backup_database.py)
 import shutil
 import datetime
 import os
@@ -878,10 +923,10 @@ def backup_database():
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     backup_dir = f"backup_{timestamp}"
     
-    # Créer dossier de sauvegarde
+    # Create backup folder
     os.makedirs(backup_dir, exist_ok=True)
     
-    # Sauvegarder les fichiers critiques
+    # Backup critical files
     files_to_backup = [
         "resources/patients.json",
         "resources/messages.json", 
@@ -892,20 +937,23 @@ def backup_database():
     for file in files_to_backup:
         if os.path.exists(file):
             shutil.copy2(file, backup_dir)
-            print(f"✅ {file} sauvegardé")
+            print(f"✅ {file} backed up")
     
-    print(f"💾 Sauvegarde complète dans {backup_dir}")
+    print(f"💾 Complete backup in {backup_dir}")
 
 if __name__ == "__main__":
     backup_database()
-Nettoyage des données
-python# Script de nettoyage (cleanup_database.py)
+```
+
+#### Data Cleanup
+```python
+# Cleanup script (cleanup_database.py)
 import json
 import datetime
 from dateutil import parser
 
 def cleanup_old_messages(days_to_keep=30):
-    """Supprime les messages de plus de X jours"""
+    """Remove messages older than X days"""
     
     with open("resources/messages.json", "r") as f:
         messages = json.load(f)
@@ -918,40 +966,44 @@ def cleanup_old_messages(days_to_keep=30):
         if msg_date > cutoff_date:
             filtered_messages.append(msg)
     
-    print(f"🗑️ Suppression de {len(messages) - len(filtered_messages)} anciens messages")
+    print(f"🗑️ Removing {len(messages) - len(filtered_messages)} old messages")
     
     with open("resources/messages.json", "w") as f:
         json.dump(filtered_messages, f, indent=2)
 
 def archive_old_patients():
-    """Archive les patients inactifs"""
+    """Archive inactive patients"""
     
     with open("resources/patients.json", "r") as f:
         patients = json.load(f)
     
-    # Logique d'archivage basée sur la dernière activité
+    # Archive logic based on last activity
     active_patients = []
     archived_patients = []
     
     for patient in patients:
         last_activity = patient.get("metadata", {}).get("last_updated", "")
-        # Implémentation logique d'archivage
+        # Implementation of archive logic
         active_patients.append(patient)
     
-    print(f"📦 {len(archived_patients)} patients archivés")
-📈 Rapports et statistiques
-Génération de rapports
-python# Script de rapport (generate_report.py)
+    print(f"📦 {len(archived_patients)} patients archived")
+```
+
+### 📈 Reports and Statistics
+
+#### Report Generation
+```python
+# Report script (generate_report.py)
 import json
 import datetime
 from collections import Counter
 
 def generate_daily_report():
-    """Génère un rapport d'activité quotidien"""
+    """Generate daily activity report"""
     
     today = datetime.date.today().strftime("%Y%m%d")
     
-    # Charger les messages du jour
+    # Load today's messages
     with open("resources/messages.json", "r") as f:
         messages = json.load(f)
     
@@ -960,7 +1012,7 @@ def generate_daily_report():
         if msg.get("timestamp", "").startswith(today)
     ]
     
-    # Statistiques
+    # Statistics
     stats = {
         "total_messages": len(daily_messages),
         "types_distribution": Counter(msg.get("type", "") for msg in daily_messages),
@@ -968,24 +1020,24 @@ def generate_daily_report():
         "success_rate": len([m for m in daily_messages if m.get("status") == "SUCCESS"]) / len(daily_messages) * 100 if daily_messages else 0
     }
     
-    # Générer rapport HTML
+    # Generate HTML report
     report_html = f"""
     <html>
-    <head><title>Rapport HL7 - {today}</title></head>
+    <head><title>HL7 Report - {today}</title></head>
     <body>
-        <h1>📊 Rapport d'activité HL7 - {today}</h1>
-        <h2>Statistiques générales</h2>
+        <h1>📊 HL7 Activity Report - {today}</h1>
+        <h2>General Statistics</h2>
         <ul>
             <li>Total messages: {stats['total_messages']}</li>
-            <li>Taux de succès: {stats['success_rate']:.1f}%</li>
+            <li>Success rate: {stats['success_rate']:.1f}%</li>
         </ul>
         
-        <h2>Répartition par type</h2>
+        <h2>Distribution by Type</h2>
         <ul>
         {"".join(f"<li>{type_}: {count}</li>" for type_, count in stats['types_distribution'].items())}
         </ul>
         
-        <h2>Activité par département</h2>
+        <h2>Activity by Department</h2>
         <ul>
         {"".join(f"<li>{dept}: {count}</li>" for dept, count in stats['departments'].items())}
         </ul>
@@ -993,62 +1045,70 @@ def generate_daily_report():
     </html>
     """
     
-    with open(f"reports/rapport_{today}.html", "w") as f:
+    with open(f"reports/report_{today}.html", "w") as f:
         f.write(report_html)
     
-    print(f"📋 Rapport généré: reports/rapport_{today}.html")
+    print(f"📋 Report generated: reports/report_{today}.html")
 
 if __name__ == "__main__":
     os.makedirs("reports", exist_ok=True)
     generate_daily_report()
-🔒 Sécurité et audit
-Audit des connexions
-python# Script d'audit (security_audit.py)
+```
+
+### 🔒 Security and Audit
+
+#### Connection Audit
+```python
+# Security audit script (security_audit.py)
 import re
 import datetime
 from collections import defaultdict
 
 def analyze_security_logs():
-    """Analyse les logs de sécurité"""
+    """Analyze security logs"""
     
     failed_connections = defaultdict(int)
     successful_connections = defaultdict(int)
     
     with open("logs/hl7_messenger.log", "r") as f:
         for line in f:
-            # Détecter tentatives de connexion échouées
+            # Detect failed connection attempts
             if "Connection refused" in line or "Authentication failed" in line:
                 ip_match = re.search(r'(\d+\.\d+\.\d+\.\d+)', line)
                 if ip_match:
                     failed_connections[ip_match.group(1)] += 1
             
-            # Détecter connexions réussies
+            # Detect successful connections
             if "Connection established" in line:
                 ip_match = re.search(r'(\d+\.\d+\.\d+\.\d+)', line)
                 if ip_match:
                     successful_connections[ip_match.group(1)] += 1
     
-    # Détecter tentatives suspectes (>10 échecs)
+    # Detect suspicious attempts (>10 failures)
     suspicious_ips = {ip: count for ip, count in failed_connections.items() if count > 10}
     
     if suspicious_ips:
-        print("🚨 ACTIVITÉ SUSPECTE DÉTECTÉE:")
+        print("🚨 SUSPICIOUS ACTIVITY DETECTED:")
         for ip, count in suspicious_ips.items():
-            print(f"   IP {ip}: {count} tentatives échouées")
+            print(f"   IP {ip}: {count} failed attempts")
     else:
-        print("✅ Aucune activité suspecte détectée")
+        print("✅ No suspicious activity detected")
     
-    print(f"\n📊 Statistiques connexions:")
-    print(f"   Connexions réussies: {sum(successful_connections.values())}")
-    print(f"   Tentatives échouées: {sum(failed_connections.values())}")
+    print(f"\n📊 Connection statistics:")
+    print(f"   Successful connections: {sum(successful_connections.values())}")
+    print(f"   Failed attempts: {sum(failed_connections.values())}")
 
 if __name__ == "__main__":
     analyze_security_logs()
+```
 
-🎯 Utilisation avancée
-🔄 Intégration avec d'autres systèmes
-API REST pour intégration externe
-python# Extension API REST (api_extension.py)
+## 🎯 Advanced Usage
+
+### 🔄 Integration with Other Systems
+
+#### REST API for External Integration
+```python
+# API extension (api_extension.py)
 from flask import Flask, request, jsonify
 import json
 
@@ -1056,34 +1116,34 @@ app = Flask(__name__)
 
 @app.route('/api/patient', methods=['POST'])
 def create_patient_via_api():
-    """Crée un patient via API REST"""
+    """Create patient via REST API"""
     
     patient_data = request.json
     
-    # Validation des données
+    # Data validation
     required_fields = ['id', 'last_name', 'first_name']
     for field in required_fields:
         if field not in patient_data:
             return jsonify({"error": f"Field {field} is required"}), 400
     
-    # Intégration avec le système HL7
+    # Integration with HL7 system
     from app.hl7_engine.builder import HL7MessageBuilder
     from app.network.mllp_client import MLLPClient
     
     builder = HL7MessageBuilder()
     client = MLLPClient()
     
-    # Générer message ADT^A01  
+    # Generate ADT^A01 message  
     message, control_id = builder.create_adt_a01(patient_data)
     
-    # Envoyer via MLLP
+    # Send via MLLP
     success, response = client.send_message(message, "ADMISSION_SYSTEM")
     
     if success:
         return jsonify({
             "status": "success",
             "control_id": control_id,
-            "message": "Patient créé avec succès"
+            "message": "Patient created successfully"
         }), 201
     else:
         return jsonify({
@@ -1093,12 +1153,12 @@ def create_patient_via_api():
 
 @app.route('/api/messages', methods=['GET'])
 def get_messages():
-    """Récupère l'historique des messages"""
+    """Retrieve message history"""
     
     with open("resources/messages.json", "r") as f:
         messages = json.load(f)
     
-    # Filtrage optionnel
+    # Optional filtering
     patient_id = request.args.get('patient_id')
     message_type = request.args.get('type')
     
@@ -1115,14 +1175,17 @@ def get_messages():
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
-Connexion base de données externe
-python# Extension base de données (database_extension.py)
+```
+
+#### External Database Connection
+```python
+# Database extension (database_extension.py)
 import sqlite3
 import mysql.connector
 from contextlib import contextmanager
 
 class DatabaseConnector:
-    """Connecteur pour bases de données externes"""
+    """Connector for external databases"""
     
     def __init__(self, db_type="sqlite", **kwargs):
         self.db_type = db_type
@@ -1130,14 +1193,14 @@ class DatabaseConnector:
     
     @contextmanager
     def get_connection(self):
-        """Context manager pour connexions DB"""
+        """Context manager for DB connections"""
         
         if self.db_type == "sqlite":
             conn = sqlite3.connect(self.connection_params.get('database', 'hl7.db'))
         elif self.db_type == "mysql":
             conn = mysql.connector.connect(**self.connection_params)
         else:
-            raise ValueError(f"Type de DB non supporté: {self.db_type}")
+            raise ValueError(f"Unsupported DB type: {self.db_type}")
         
         try:
             yield conn
@@ -1145,16 +1208,16 @@ class DatabaseConnector:
             conn.close()
     
     def sync_patients_to_external_db(self):
-        """Synchronise les patients vers la DB externe"""
+        """Sync patients to external DB"""
         
-        # Charger patients depuis JSON
+        # Load patients from JSON
         with open("resources/patients.json", "r") as f:
             patients = json.load(f)
         
         with self.get_connection() as conn:
             cursor = conn.cursor()
             
-            # Créer table si nécessaire
+            # Create table if necessary
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS patients (
                     id VARCHAR(50) PRIMARY KEY,
@@ -1168,7 +1231,7 @@ class DatabaseConnector:
                 )
             """)
             
-            # Insérer patients
+            # Insert patients
             for patient in patients:
                 cursor.execute("""
                     INSERT OR REPLACE INTO patients 
@@ -1185,22 +1248,26 @@ class DatabaseConnector:
                 ))
             
             conn.commit()
-            print(f"✅ {len(patients)} patients synchronisés vers DB externe")
+            print(f"✅ {len(patients)} patients synced to external DB")
 
-# Exemple d'utilisation
+# Usage example
 if __name__ == "__main__":
-    # SQLite local
+    # Local SQLite
     db_sqlite = DatabaseConnector("sqlite", database="hl7_patients.db")
     db_sqlite.sync_patients_to_external_db()
-📱 Extensions mobiles et web
-Interface web simple
-html<!-- Extension web (web_interface.html) -->
+```
+
+### 📱 Mobile and Web Extensions
+
+#### Simple Web Interface
+```html
+<!-- Web extension (web_interface.html) -->
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HL7 Messenger - Interface Web</title>
+    <title>HL7 Messenger - Web Interface</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         .container { max-width: 800px; margin: 0 auto; }
@@ -1216,71 +1283,71 @@ html<!-- Extension web (web_interface.html) -->
 </head>
 <body>
     <div class="container">
-        <h1>🏥 HL7 Messenger - Interface Web</h1>
+        <h1>🏥 HL7 Messenger - Web Interface</h1>
         
         <form id="patientForm">
-            <h2>📋 Nouveau Patient</h2>
+            <h2>📋 New Patient</h2>
             
             <div class="form-group">
-                <label for="patientId">🆔 ID Patient *</label>
+                <label for="patientId">🆔 Patient ID *</label>
                 <input type="text" id="patientId" name="patientId" required>
             </div>
             
             <div class="form-group">
-                <label for="lastName">👤 Nom *</label>
+                <label for="lastName">👤 Last Name *</label>
                 <input type="text" id="lastName" name="lastName" required>
             </div>
             
             <div class="form-group">
-                <label for="firstName">👤 Prénom *</label>
+                <label for="firstName">👤 First Name *</label>
                 <input type="text" id="firstName" name="firstName" required>
             </div>
             
             <div class="form-group">
-                <label for="birthDate">📅 Date de naissance</label>
+                <label for="birthDate">📅 Birth Date</label>
                 <input type="date" id="birthDate" name="birthDate">
             </div>
             
             <div class="form-group">
-                <label for="gender">⚧ Sexe</label>
+                <label for="gender">⚧ Gender</label>
                 <select id="gender" name="gender">
-                    <option value="M">Masculin</option>
-                    <option value="F">Féminin</option>
-                    <option value="O">Autre</option>
-                    <option value="U">Inconnu</option>
+                    <option value="M">Male</option>
+                    <option value="F">Female</option>
+                    <option value="O">Other</option>
+                    <option value="U">Unknown</option>
                 </select>
             </div>
             
             <div class="form-group">
-                <label for="ward">🏢 Service</label>
+                <label for="ward">🏢 Ward</label>
                 <input type="text" id="ward" name="ward">
             </div>
             
             <div class="form-group">
-                <label for="room">🛏️ Chambre</label>
+                <label for="room">🛏️ Room</label>
                 <input type="text" id="room" name="room">
             </div>
             
-            <button type="submit">🚀 Enregistrer Patient</button>
+            <button type="submit">🚀 Register Patient</button>
         </form>
         
         <div id="status" class="status" style="display: none;"></div>
         
-        <h2>📊 Patients récents</h2>
+        <h2>📊 Recent Patients</h2>
         <div id="patientsList">
-            <p>Chargement...</p>
+            <p>Loading...</p>
         </div>
     </div>
 
     <script>
-        // JavaScript pour interaction avec l'API
+        // JavaScript for API interaction
         document.getElementById('patientForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const formData = new FormData(e.target);
             const patientData = Object.fromEntries(formData.entries());
             
-            // Convertir date au format HL7 (AAAAMMJJ)
+            // Convert date to HL7 format (YYYYMMDD)
             if (patientData.birthDate) {
                 patientData.birth_date = patientData.birthDate.replace(/-/g, '');
                 delete patientData.birthDate;
@@ -1298,19 +1365,19 @@ html<!-- Extension web (web_interface.html) -->
                 
                 if (response.ok) {
                     statusDiv.className = 'status success';
-                    statusDiv.textContent = '✅ Patient enregistré avec succès!';
+                    statusDiv.textContent = '✅ Patient registered successfully!';
                     statusDiv.style.display = 'block';
                     e.target.reset();
-                    loadPatients(); // Recharger la liste
+                    loadPatients(); // Reload list
                 } else {
                     statusDiv.className = 'status error';
-                    statusDiv.textContent = '❌ Erreur: ' + result.message;
+                    statusDiv.textContent = '❌ Error: ' + result.message;
                     statusDiv.style.display = 'block';
                 }
             } catch (error) {
                 const statusDiv = document.getElementById('status');
                 statusDiv.className = 'status error';
-                statusDiv.textContent = '❌ Erreur de connexion: ' + error.message;
+                statusDiv.textContent = '❌ Connection error: ' + error.message;
                 statusDiv.style.display = 'block';
             }
         });
@@ -1322,210 +1389,224 @@ html<!-- Extension web (web_interface.html) -->
                 
                 const patientsDiv = document.getElementById('patientsList');
                 if (patients.length === 0) {
-                    patientsDiv.innerHTML = '<p>Aucun patient enregistré</p>';
+                    patientsDiv.innerHTML = '<p>No patients registered</p>';
                 } else {
                     patientsDiv.innerHTML = patients.map(patient => `
                         <div style="border: 1px solid #ddd; padding: 10px; margin: 5px 0; border-radius: 4px;">
                             <strong>${patient.id}</strong> - ${patient.last_name} ${patient.first_name}
-                            <br><small>Service: ${patient.ward || 'Non spécifié'} | Chambre: ${patient.room || 'Non spécifié'}</small>
+                            <br><small>Ward: ${patient.ward || 'Not specified'} | Room: ${patient.room || 'Not specified'}</small>
                         </div>
                     `).join('');
                 }
             } catch (error) {
-                document.getElementById('patientsList').innerHTML = '<p>Erreur lors du chargement des patients</p>';
+                document.getElementById('patientsList').innerHTML = '<p>Error loading patients</p>';
             }
         }
         
-        // Charger les patients au démarrage
+        // Load patients on startup
         loadPatients();
     </script>
 </body>
 </html>
+```
 
-📚 Ressources et références
-📖 Documentation HL7
-Standards HL7 v2.5
+## 📚 Resources and References
 
-HL7 International : Site officiel HL7
-HL7 v2.5 Standard : Spécifications complètes
-MLLP Protocol : RFC du protocole MLLP
+### 📖 HL7 Documentation
 
-Guides d'implémentation
+#### HL7 v2.5 Standards
+- **HL7 International**: Official HL7 site
+- **HL7 v2.5 Standard**: Complete specifications
+- **MLLP Protocol**: MLLP protocol RFC
 
-HL7apy Documentation : Documentation bibliothèque Python
-Messages ADT : Structure messages admission
-Messages ORU : Structure messages résultats
-Messages ORM : Structure messages commandes
+#### Implementation Guides
+- **HL7apy Documentation**: Python library documentation
+- **ADT Messages**: Admission message structure
+- **ORU Messages**: Results message structure
+- **ORM Messages**: Order message structure
 
-🛠️ Ressources techniques
-Outils de développement
-bash# Outils HL7 utiles
-pip install hl7apy          # Bibliothèque HL7 Python
+### 🛠️ Technical Resources
+
+#### Development Tools
+```bash
+# Useful HL7 tools
+pip install hl7apy          # HL7 Python library
 pip install python-hl7     # Alternative HL7
-pip install hl7-fhir       # Support FHIR (futur)
+pip install hl7-fhir       # FHIR support (future)
 
-# Outils de test
-pip install pytest         # Framework de test
-pip install mock          # Mocking pour tests
-pip install coverage      # Couverture de tests
-Outils de debug HL7
+# Testing tools
+pip install pytest         # Testing framework
+pip install mock          # Mocking for tests
+pip install coverage      # Test coverage
+```
 
-HL7 Inspector : Analyseur messages HL7
-Mirth Connect : Plateforme intégration HL7
-HAPI Test Panel : Testeur messages HL7
+#### HL7 Debug Tools
+- **HL7 Inspector**: HL7 message analyzer
+- **Mirth Connect**: HL7 integration platform
+- **HAPI Test Panel**: HL7 message tester
 
-🎓 Formation et certification
-Ressources d'apprentissage
+### 🎓 Training and Certification
 
-HL7 University : Formation officielle HL7
-Coursera HL7 : Cours en ligne
-edX Health Informatics : Informatique médicale
+#### Learning Resources
+- **HL7 University**: Official HL7 training
+- **Coursera HL7**: Online courses
+- **edX Health Informatics**: Medical informatics
 
-Certifications disponibles
+#### Available Certifications
+- **HL7 Associate**: Basic certification
+- **HL7 Professional**: Advanced certification
+- **HL7 Expert**: Expert certification
 
-HL7 Associate : Certification de base
-HL7 Professional : Certification avancée
-HL7 Expert : Certification experte
+---
 
+## 📚 Conclusion and Support
 
-📚 Conclusion et support
-Vous avez maintenant en main le guide d'utilisation complet de HL7 Messenger, une solution de messagerie hospitalière de niveau professionnel. Ce système vous permet de :
-✅ Gérer la communication entre tous les départements hospitaliers
-✅ Envoyer et recevoir des messages HL7 standardisés
-✅ Stocker et consulter l'historique complet des échanges
-✅ Diagnostiquer et résoudre les problèmes techniques
-✅ Étendre et personnaliser le système selon vos besoins
-📞 Support et assistance
-Contacts du projet
+You now have the complete user guide for HL7 Messenger, a professional-level hospital messaging solution. This system allows you to:
 
-👩‍💻 Équipe de développement : Anouchka, Christelle, Roméo, Calixta
-🏫 Institution : Université Libre de Bruxelles (ULB)
-📧 Contact principal : ngueanouchka@gmail.com ou jeannette.ngue@ulb.be
-🌐 Dépôt GitHub : https://github.com/nouchka9/projet_infoh400
+✅ Manage communication between all hospital departments  
+✅ Send and receive standardized HL7 messages  
+✅ Store and consult complete exchange history  
+✅ Diagnose and resolve technical problems  
+✅ Extend and customize the system according to your needs  
 
-Ressources de support
+### 📞 Support and Assistance
 
-📖 Documentation technique : Dossier docs/
-🐛 Signalement de bugs : GitHub Issues
-💬 Discussions : Utiliser les discussions GitHub
-📚 Tutoriels avancés : Wiki du projet
+#### Project Contacts
+- **👩‍💻 Development Team**: Anouchka, Christelle, Roméo, Calixta
+- **🏫 Institution**: Université Libre de Bruxelles (ULB)
+- **📧 Main Contact**: ngueanouchka@gmail.com or jeannette.ngue@ulb.be
+- **🌐 GitHub Repository**: https://github.com/nouchka9/projet_infoh400
 
-🏆 Projet académique INFO-H-400
-Ce guide d'utilisation fait partie intégrante du projet développé dans le cadre du cours INFO-H-400 "Medical Information Systems" à l'ULB.
-Objectifs pédagogiques atteints
+#### Support Resources
+- **📖 Technical Documentation**: docs/ folder
+- **🐛 Bug Reports**: GitHub Issues
+- **💬 Discussions**: Use GitHub discussions
+- **📚 Advanced Tutorials**: Project wiki
 
-✅ Maîtrise complète du standard HL7 v2.5
-✅ Implémentation pratique des protocoles médicaux
-✅ Architecture logicielle de niveau entreprise
-✅ Documentation professionnelle et guide utilisateur
-✅ Travail collaboratif avec répartition des rôles
+### 🏆 INFO-H-400 Academic Project
 
-Compétences développées
+This user guide is an integral part of the project developed as part of the INFO-H-400 "Medical Information Systems" course at ULB.
 
-Programmation avancée : Python, architecture modulaire
-Protocoles médicaux : HL7, MLLP, standards internationaux
-Interface utilisateur : Tkinter, ergonomie, UX/UI
-Communication réseau : TCP/IP, threading, gestion d'erreurs
-Gestion de données : JSON, persistence, historique
-Documentation technique : Guides, spécifications, support
+#### Achieved Learning Objectives
+✅ **Complete mastery of HL7 v2.5 standard**  
+✅ **Practical implementation of medical protocols**  
+✅ **Enterprise-level software architecture**  
+✅ **Professional documentation and user guide**  
+✅ **Collaborative work with role distribution**  
 
+#### Developed Skills
+- **Advanced Programming**: Python, modular architecture
+- **Medical Protocols**: HL7, MLLP, international standards
+- **User Interface**: Tkinter, ergonomics, UX/UI
+- **Network Communication**: TCP/IP, threading, error handling
+- **Data Management**: JSON, persistence, history
+- **Technical Documentation**: Guides, specifications, support
 
-📋 Récapitulatif des fonctionnalités
-🏥 Modules départementaux
-DépartementMessagesFonctionnalités clés🏥 AdmissionADT^A01-A08Enregistrement patients, transferts, sorties🔬 LaboratoireORU^R01Résultats analyses, codes LOINC, anomalies📡 RadiologieORM^O01, ORU^R01Commandes examens, comptes-rendus💊 PharmacieORM^O01Prescriptions, posologies, interactions
-🌐 Communication réseau
+---
 
-Protocole MLLP : Transport fiable des messages HL7
-Multi-threading : Gestion simultanée de plusieurs clients
-ACK automatiques : Confirmation de réception des messages
-Gestion d'erreurs : Diagnostic et récupération automatique
+## 📋 Feature Summary
 
-💾 Gestion des données
+### 🏥 Departmental Modules
+| Department | Messages | Key Features |
+|------------|----------|--------------|
+| 🏥 Admission | ADT^A01-A08 | Patient registration, transfers, discharges |
+| 🔬 Laboratory | ORU^R01 | Analysis results, LOINC codes, anomalies |
+| 📡 Radiology | ORM^O01, ORU^R01 | Exam orders, reports |
+| 💊 Pharmacy | ORM^O01 | Prescriptions, dosages, interactions |
 
-Base patients : Stockage JSON avec métadonnées complètes
-Historique messages : Traçabilité complète des échanges
-Sauvegarde automatique : Protection contre la perte de données
-Export multiple : CSV, PDF, JSON pour analyse
+### 🌐 Network Communication
+- **MLLP Protocol**: Reliable HL7 message transport
+- **Multi-threading**: Simultaneous multiple client management
+- **Automatic ACKs**: Message reception confirmation
+- **Error Handling**: Diagnosis and automatic recovery
 
-🔧 Administration
+### 💾 Data Management
+- **Patient Database**: JSON storage with complete metadata
+- **Message History**: Complete exchange traceability
+- **Automatic Backup**: Protection against data loss
+- **Multiple Export**: CSV, PDF, JSON for analysis
 
-Monitoring temps réel : Surveillance des connexions et messages
-Logs détaillés : Diagnostic et débogage avancé
-Scripts maintenance : Sauvegarde, nettoyage, rapports
-Configuration flexible : Adaptation aux besoins spécifiques
+### 🔧 Administration
+- **Real-time Monitoring**: Connection and message surveillance
+- **Detailed Logs**: Advanced diagnosis and debugging
+- **Maintenance Scripts**: Backup, cleanup, reports
+- **Flexible Configuration**: Adaptation to specific needs
 
+---
 
-🚀 Prochaines étapes
-Pour commencer immédiatement
+## 🚀 Next Steps
 
-📥 Installer : pip install -r requirements.txt
-🚀 Démarrer : python app/network/mllp_server.py
-🔗 Connecter : anouchka / libre → ADMISSION
-📨 Tester : Envoyer votre premier message ADT^A01
-✅ Vérifier : Consulter les logs et l'historique
+### To Start Immediately
+📥 **Install**: `pip install -r requirements.txt`  
+🚀 **Start**: `python app/network/mllp_server.py`  
+🔗 **Connect**: anouchka / libre → ADMISSION  
+📨 **Test**: Send your first ADT^A01 message  
+✅ **Verify**: Check logs and history  
 
-Pour aller plus loin
+### To Go Further
+📚 **Explore** laboratory, radiology, pharmacy modules  
+🔧 **Configure** advanced parameters according to your needs  
+📊 **Analyze** data with reporting tools  
+🌐 **Integrate** with your existing systems via API  
+📈 **Extend** features according to your specific needs  
 
-📚 Explorer les modules laboratoire, radiologie, pharmacie
-🔧 Configurer les paramètres avancés selon vos besoins
-📊 Analyser les données avec les outils de rapport
-🌐 Intégrer avec vos systèmes existants via l'API
-📈 Étendre les fonctionnalités selon vos besoins spécifiques
+### Recommended Future Developments
+🗄️ **Relational Database**: PostgreSQL or MySQL for large volumes  
+🌐 **Modern Web Interface**: React or Vue.js for mobility  
+🔐 **Advanced Authentication**: LDAP, Active Directory, OAuth2  
+📊 **Advanced Analytics**: Interactive dashboards  
+🔄 **HL7 FHIR Support**: Next-generation standards  
+🐳 **Containerization**: Docker for simplified deployment  
 
-Évolutions futures recommandées
+---
 
-🗄️ Base de données relationnelle : PostgreSQL ou MySQL pour de gros volumes
-🌐 Interface web moderne : React ou Vue.js pour mobilité
-🔐 Authentification avancée : LDAP, Active Directory, OAuth2
-📊 Analytics avancés : Tableaux de bord interactifs
-🔄 Support HL7 FHIR : Standards de nouvelle génération
-🐳 Containerisation : Docker pour déploiement simplifié
+## 🏅 Special Thanks
 
+### To the Development Team
+- **Anouchka Ngue** 👩‍💻: Server architecture and technical leadership
+- **Christelle** 📡: Network communication and MLLP protocols
+- **Roméo** 🎨: User interface and user experience
+- **Calixta** 📊: Data management and documentation
 
-🏅 Remerciements spéciaux
-À l'équipe de développement
+### To Academic Supervision
+- **ULB Professors**: INFO-H-400 project supervision
+- **Université Libre de Bruxelles**: Academic framework of excellence
+- **HL7 Community**: Standards and technical specifications
 
-Anouchka Ngue 👩‍💻 : Architecture serveur et leadership technique
-Christelle 📡 : Communication réseau et protocoles MLLP
-Roméo 🎨 : Interface utilisateur et expérience utilisateur
-Calixta 📊 : Gestion des données et documentation
+### To Open Source Projects
+- **Python Foundation**: Language and ecosystem
+- **HL7apy Team**: Quality HL7 library
+- **Tkinter Community**: Native graphical interface
+- **GitHub**: Collaboration platform
 
-À l'encadrement académique
+---
 
-Professeurs ULB : Encadrement du projet INFO-H-400
-Université Libre de Bruxelles : Cadre académique d'excellence
-Communauté HL7 : Standards et spécifications techniques
+## ✅ Final Summary
 
-Aux projets open source
+✅ **Complete hospital messaging solution**  
+✅ **Respected standards**: HL7 v2.5 and MLLP  
+✅ **Robust architecture** with error handling  
+✅ **Intuitive interface** for non-technical users  
+✅ **Complete professional documentation**  
+✅ **Exhaustive testing and validation**  
 
-Python Foundation : Langage et ecosystem
-HL7apy Team : Bibliothèque HL7 de qualité
-Tkinter Community : Interface graphique native
-GitHub : Plateforme de collaboration
+### 🚀 Potential Impact
 
+This project could serve as a foundation for:
+- HL7 training in other universities
+- Hospital prototypes for healthcare sector SMEs
+- Development tools for HL7 integrators
+- Technical references for medical informatics students
 
-✅ Solution complète de messagerie hospitalière
-✅ Standards respectés : HL7 v2.5 et MLLP
-✅ Architecture robuste avec gestion d'erreurs
-✅ Interface intuitive pour utilisateurs non-techniques
-✅ Documentation professionnelle complète
-✅ Tests et validation exhaustifs
+---
 
-🚀 Impact potentiel
-Ce projet pourrait servir de base pour :
+**🎓 HL7 Messenger v1.0 - Complete User Guide**  
+*Developed with passion by the INFOH400 team*  
+*Université Libre de Bruxelles - May 2025*  
 
-Formations HL7 dans d'autres universités
-Prototypes hospitaliers pour PME du secteur santé
-Outils de développement pour intégrateurs HL7
-Références techniques pour étudiants en informatique médicale
+**📞 Need help? Contact us via GitHub or email!**  
+**🌟 Feel free to contribute to the project and help it evolve!**  
 
-
-🎓 HL7 Messenger v1.0 - Guide d'utilisation complet
-Développé avec passion par l'équipe INFOH400
-Université Libre de Bruxelles - Mai 2025
-📞 Besoin d'aide ? Contactez-nous via GitHub ou par email !
-🌟 N'hésitez pas à contribuer au projet et à le faire évoluer !
-
-Fin du guide d'utilisation - Merci d'avoir choisi HL7 Messenger ! ✨
-© 2025 - Équipe INFOH400 - Université Libre de Bruxelles
-Tous droits réservés - Projet académique à des fins éducatives
+*End of user guide - Thank you for choosing HL7 Messenger! ✨*  
+*© 2025 - INFOH400 Team - Université Libre de Bruxelles*  
+*All rights reserved - Academic project for educational purposes*
